@@ -135,3 +135,51 @@ This ensures:
 - Code reviews
 - No broken main branch
 - Easier rollbacks if needed
+
+---
+
+# 🧰 Reverting Git Changes Safely  (CONSULT WITH TEAM!!!)
+
+This guide helps you safely revert your GitHub repo to an earlier state without rewriting history (ideal for solo and team workflows).
+
+---
+
+## ✅ Revert to a Previous Commit (Safe Way)
+
+If the commit that corrupted the repo has already been pushed and merged into `main`, and you want to undo its changes without rewriting history, follow these steps:
+
+---
+
+### 1. Find the Commit You Want to Revert To
+
+Run the following command to view the commit history:
+
+```bash
+git log
+```
+
+---
+
+### 2. Revert the Bad Commit(s)
+
+To revert a single bad commit:
+
+```bash
+git revert <bad_commit_hash>
+```
+
+To revert multiple commits (from newest to oldest):
+
+```bash
+git revert <newest_bad_commit>^..<oldest_bad_commit>
+```
+
+---
+
+### 3. Push the Reverted Changes
+
+After reverting locally, push to the remote branch:
+
+```bash
+git push origin main
+```
