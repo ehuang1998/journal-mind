@@ -1,10 +1,10 @@
 import MoodRadarChart from "@/components/Dashboard/RadarChart";
 import JournalCard from "@/components/Journal/JournalCard";
 import SuggestedTopics from "@/components/Dashboard/SuggestedTopics";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
+import { Button } from "@/components/UI/button";
+import { Progress } from "@/components/UI/progress";
+import { Badge } from "@/components/UI/badge";
 import { Plus, Search, BarChart2, Settings } from "lucide-react";
 import Link from "next/link";
 
