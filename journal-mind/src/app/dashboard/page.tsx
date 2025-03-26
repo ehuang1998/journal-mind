@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Progress } from "@/components/UI/progress";
 import { Badge } from "@/components/UI/badge";
-import { Plus, Search, BarChart2, Settings } from "lucide-react";
+import { Plus, House, Search, NotebookPen, BarChart2, Settings } from "lucide-react";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -49,43 +49,41 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <header className="flex items-center justify-between px-10 py-4 border-b border-border">
         <div className="flex items-center">
-          <div className="mr-2 text-primary">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="2" width="20" height="20" rx="2" stroke="currentColor" strokeWidth="2" />
-              <path d="M6 7H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M6 12H18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <path d="M6 17H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
+          <div className="mr-4 text-primary">
+            <img 
+                src="/logo.svg" 
+                alt="JournalMind Logo" 
+                width={35} 
+                height={35} 
+                className="text-primary"
+              />
           </div>
           <h1 className="text-xl font-semibold">JournalMind</h1>
         </div>
         
-        <nav className="flex items-center gap-6">
-          <Link href="/dashboard" className="flex items-center gap-1.5">
+        <nav className="flex items-center gap-10">
+          <Link href="/dashboard" className="flex items-center gap-2">
+          <House size={18} />
             <span>Home</span>
           </Link>
-          <Link href="/search" className="flex items-center gap-1.5">
-            <Search size={18} />
-            <span>Search</span>
+          <Link href="/search" className="flex items-center gap-2">
+            <NotebookPen size={18} />
+            <span>My Journals</span>
           </Link>
-          <Link href="/statistics" className="flex items-center gap-1.5">
+          <Link href="/statistics" className="flex items-center gap-2">
             <BarChart2 size={18} />
             <span>Statistics</span>
           </Link>
-          <Link href="/settings" className="flex items-center gap-1.5">
-            <Settings size={18} />
-            <span>Settings</span>
-          </Link>
           <div className="ml-4 h-9 w-9 rounded-full bg-gray-300 overflow-hidden">
-            <img src="/avatar-placeholder.jpg" alt="User avatar" className="w-full h-full object-cover" />
+            <img src="/avatar-placeholder.svg" alt="User avatar" className="w-full h-full object-cover" />
           </div>
         </nav>
       </header>
 
       {/* Main Content */}
-      <div className="grid grid-cols-[300px_1fr_300px] gap-6 p-6">
+      <div className="grid grid-cols-[450px_1fr_400px] gap-6 p-6">
         {/* Left Sidebar */}
         <div className="space-y-6">
           {/* Monthly Summary */}

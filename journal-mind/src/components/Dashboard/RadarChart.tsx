@@ -25,12 +25,12 @@ import {
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
           <PolarGrid />
           <PolarAngleAxis dataKey="subject" />
-          <PolarRadiusAxis angle={30} domain={[0, 100]} />
+          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} />
           <Radar
             name="Mood"
             dataKey="value"
-            stroke="var(--color-primary)"
-            fill="var(--color-primary)"
+            stroke="var(--chart-1)"
+            fill="var(--chart-1)"
             fillOpacity={0.2}
           />
         </RadarChart>
