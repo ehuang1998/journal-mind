@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 
 export default async function Home() {
 
-    redirect('/dashboard')
+    redirect('/auth/login')
   
 
   // This fallback will never be seen due to redirect
