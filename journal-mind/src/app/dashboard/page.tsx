@@ -1,3 +1,4 @@
+"use client";
 import MoodRadarChart from "@/components/Dashboard/RadarChart";
 import JournalCard from "@/components/Journal/JournalCard";
 import SuggestedTopics from "@/components/Dashboard/SuggestedTopics";
@@ -5,10 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Progress } from "@/components/UI/progress";
 import { Badge } from "@/components/UI/badge";
-import { Plus, House, Search, NotebookPen, BarChart2, Settings } from "lucide-react";
-import Link from "next/link";
+import { Plus } from "lucide-react";
+import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
+import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { useState } from "react";
 
 export default function Dashboard() {
+  const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
+
   // Sample data for the radar chart
   const moodData = [
     { subject: 'Happy', value: 80, fullMark: 100 },
@@ -43,44 +48,41 @@ export default function Dashboard() {
       dateTime: "2025-03-09 at 03:45 PM",
       mood: "accomplished",
       isPinned: false
+    },
+    {
+      id: 4,
+      title: "Project Breakthrough",
+      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
+      dateTime: "2025-03-09 at 03:45 PM",
+      mood: "accomplished",
+      isPinned: false
+    },
+    {
+      id: 5,
+      title: "Project Breakthrough",
+      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
+      dateTime: "2025-03-09 at 03:45 PM",
+      mood: "accomplished",
+      isPinned: false
+    },
+    {
+      id: 6,
+      title: "Project Breakthrough",
+      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
+      dateTime: "2025-03-09 at 03:45 PM",
+      mood: "accomplished",
+      isPinned: false
     }
   ];
+
+  // Get only the last 3 entries
+  const recentEntries = entries.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-10 py-4 border-b border-border">
-        <div className="flex items-center">
-          <div className="mr-4 text-primary">
-            <img 
-                src="/logo.svg" 
-                alt="JournalMind Logo" 
-                width={35} 
-                height={35} 
-                className="text-primary"
-              />
-          </div>
-          <h1 className="text-xl font-semibold">JournalMind</h1>
-        </div>
-        
-        <nav className="flex items-center gap-10">
-          <Link href="/dashboard" className="flex items-center gap-2">
-          <House size={18} />
-            <span>Home</span>
-          </Link>
-          <Link href="/search" className="flex items-center gap-2">
-            <NotebookPen size={18} />
-            <span>My Journals</span>
-          </Link>
-          <Link href="/statistics" className="flex items-center gap-2">
-            <BarChart2 size={18} />
-            <span>Statistics</span>
-          </Link>
-          <div className="ml-4 h-9 w-9 rounded-full bg-gray-300 overflow-hidden">
-            <img src="/avatar-placeholder.svg" alt="User avatar" className="w-full h-full object-cover" />
-          </div>
-        </nav>
-      </header>
+
+      <DashboardHeader />
 
       {/* Main Content */}
       <div className="grid grid-cols-[450px_1fr_400px] gap-6 p-6">
@@ -127,15 +129,15 @@ export default function Dashboard() {
         <div>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">My Journal Entries</h1>
-            <Button>
+            <Button onClick={() => setIsNewEntryModalOpen(true)}>
               <Plus size={16} className="mr-1.5" />
               New Entry
             </Button>
           </div>
-          
+          <div className="pb-3">Last Accessed:</div>
           {/* Journal Entries */}
           <div className="space-y-4">
-            {entries.map(entry => (
+            {recentEntries.map(entry => (
               <JournalCard 
                 key={entry.id}
                 title={entry.title}
@@ -177,6 +179,12 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Add the modal */}
+      <JournalEntryModal 
+        isOpen={isNewEntryModalOpen}
+        onClose={() => setIsNewEntryModalOpen(false)}
+      />
     </div>
   );
 }
