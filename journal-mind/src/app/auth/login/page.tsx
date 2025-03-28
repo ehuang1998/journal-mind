@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
+import { Checkbox } from "@/components/UI/checkbox";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -41,35 +42,39 @@ export default function LoginPage() {
               />
               <h1 className="text-2xl font-semibold">JournalMind</h1>
             </div>
+            <h1 className="text-2xl font-semibold">Welcome Back</h1>
             <p className="text-sm text-muted-foreground">
-              Login to start your journaling journey
+              Continue your journaling journey
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Input
                 type="email"
-                placeholder="Email address"
+                placeholder="Email Address"
                 className="w-full"
               />
             </div>
+            
             <div className="space-y-2">
               <Input
                 type="password"
                 placeholder="Password"
                 className="w-full"
               />
-              <div className="text-right pb-10">
+
+              <div className="text-right pb-5">
                 <Link
                   href="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot Password?
                 </Link>
+                
               </div>
             </div>
             <Button className="w-full" size="lg">
-              Login
+              Log In
             </Button>
 
             {/* <div className="relative my-6">
@@ -108,8 +113,8 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <Link href="/signup" className="text-primary hover:underline">
-                Sign Up
+              <Link href="/auth/signup" className="text-primary hover:underline">
+                Create Account
               </Link>
             </p>
           </CardContent>

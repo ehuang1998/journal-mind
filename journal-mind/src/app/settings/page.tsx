@@ -41,8 +41,8 @@ export default function SettingsPage() {
                   Upload New Photo
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Upload a new avatar. Larger image will be resized automatically.<br />
-                  Maximum upload size is 1 MB
+                  Larger images will be resized automatically.<br />
+                  Maximum upload size is 1 MB.
                 </p>
               </div>
 
@@ -62,7 +62,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="firstName" className="text-sm font-medium">
-                    Full Name
+                    First Name
                   </label>
                   <Input
                     id="firstName"
@@ -72,7 +72,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="lastName" className="text-sm font-medium">
-                    Username
+                    Last Name
                   </label>
                   <Input
                     id="lastName"
