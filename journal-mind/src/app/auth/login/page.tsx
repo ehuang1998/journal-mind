@@ -1,11 +1,59 @@
+"use client";
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Checkbox } from "@/components/UI/checkbox";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  async function handleLogin() {
+    try {
+      setLoading(true);
+      setError("");
+      
+      console.log("Attempting direct login with:", { email });
+      
+      // Use our custom direct login endpoint
+      const response = await fetch('/api/auth/direct-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        console.error('Login error:', responseData);
+        setError(responseData.error || 'Authentication failed');
+        return;
+      }
+      
+      console.log('Login successful:', responseData);
+      
+      // Redirect to dashboard after successful login
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err instanceof Error ? err.message : "Failed to log in");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen grid grid-cols-[60fr_40fr]">
       {/* Left side with image and quote */}
@@ -48,11 +96,19 @@ export default function LoginPage() {
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {error}
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Input
                 type="email"
                 placeholder="Email Address"
                 className="w-full"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             
@@ -61,6 +117,8 @@ export default function LoginPage() {
                 type="password"
                 placeholder="Password"
                 className="w-full"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
 
               <div className="text-right pb-5">
@@ -70,11 +128,15 @@ export default function LoginPage() {
                 >
                   Forgot Password?
                 </Link>
-                
               </div>
             </div>
-            <Button className="w-full" size="lg">
-              Log In
+            <Button 
+              className="w-full" 
+              size="lg" 
+              onClick={handleLogin}
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Log In"}
             </Button>
 
             {/* <div className="relative my-6">
