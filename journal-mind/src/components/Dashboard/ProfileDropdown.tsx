@@ -6,17 +6,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/UI/dropdown-menu";
 import { Settings, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
+// ProfileDropdown component for user profile options
 export default function ProfileDropdown() {
+  const router = useRouter(); // Initialize router for navigation
+
+  // Function to handle navigation to profile settings
   const handleProfileSettings = () => {
-    // Navigate to profile settings page
-    window.location.href = '/settings';
+    router.push('/settings'); // Navigate to profile settings page
   };
 
-  const handleLogout = () => {
-    // Handle logout logic
-    // For example: clear session, redirect to login page
-    window.location.href = '/auth/login';
+  // Function to handle user logout
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' }); // Call logout endpoint
+      router.push('/auth/login'); // Redirect to login page after successful logout
+    } catch (error) {
+      console.error("Logout failed:", error); // Log any errors during logout
+    }
   };
 
   return (

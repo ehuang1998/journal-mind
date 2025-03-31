@@ -1,4 +1,6 @@
 "use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import MoodRadarChart from "@/components/Dashboard/RadarChart";
 import JournalCard from "@/components/Journal/JournalCard";
 import SuggestedTopics from "@/components/Dashboard/SuggestedTopics";
@@ -9,10 +11,68 @@ import { Badge } from "@/components/UI/badge";
 import { Plus } from "lucide-react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
-import { useState } from "react";
+
+// Define user type for TypeScript type safety
+interface User {
+  id: string;
+  email: string;
+  name?: string;  // Optional field
+  createdAt?: string;  // Optional field
+}
 
 export default function Dashboard() {
   const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
+  // Add authentication state
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Function to check if user is authenticated
+    async function checkAuth() {
+      try {
+        // Fetch current user from session endpoint
+        const response = await fetch('/api/auth/session');
+        
+        if (!response.ok) {
+          // If not authenticated, redirect to login page
+          router.push('/auth/login');
+          return;
+        }
+        
+        // Parse and store user data if authenticated
+        const userData = await response.json();
+        setUser(userData.user);
+      } catch (error) {
+        // Handle any errors during authentication check
+        console.error("Failed to check authentication:", error);
+        router.push('/auth/login');
+      } finally {
+        // Set loading to false regardless of outcome
+        setLoading(false);
+      }
+    }
+    
+    // Call the authentication check function when component mounts
+    checkAuth();
+  }, [router]); // Re-run if router changes
+  
+  // Handler for user logout
+  const handleLogout = async () => {
+    try {
+      // Call logout endpoint
+      await fetch('/api/auth/logout', { method: 'POST' });
+      // Redirect to login page after successful logout
+      router.push('/auth/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
 
   // Sample data for the radar chart
   const moodData = [
