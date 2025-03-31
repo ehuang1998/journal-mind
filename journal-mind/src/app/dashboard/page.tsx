@@ -23,7 +23,7 @@ interface User {
 export default function Dashboard() {
   const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
   // Add authentication state
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -56,6 +56,22 @@ export default function Dashboard() {
     // Call the authentication check function when component mounts
     checkAuth();
   }, [router]); // Re-run if router changes
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        if (data.user) {
+          setUser(data.user);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }
+
+    fetchUser();
+  }, []);
   
   // Handler for user logout
   const handleLogout = async () => {
@@ -148,6 +164,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-[450px_1fr_400px] gap-6 p-6">
         {/* Left Sidebar */}
         <div className="space-y-6">
+          <div className="text-2xl font-semibold mb-6 pl-3">
+              Welcome {user?.name || 'User'}
+          </div>
           {/* Monthly Summary */}
           <Card>
             <CardHeader>
