@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
@@ -8,12 +8,39 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+interface Quote {
+  q: string; // quote text
+  a: string; // author
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [quote, setQuote] = useState<Quote | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchQuote() {
+      try {
+        const response = await fetch('/api/quotes');
+        const data = await response.json();
+        if (data && data[0]) {
+          setQuote(data[0]);
+        }
+      } catch (err) {
+        console.error('Error fetching quote:', err);
+        // Fallback quote in case of API failure
+        setQuote({
+          q: "Write it on your heart that every day is the best day in the year.",
+          a: "Ralph Waldo Emerson"
+        });
+      }
+    }
+
+    fetchQuote();
+  }, []);
 
   async function handleLogin() {
     try {
@@ -70,9 +97,12 @@ export default function LoginPage() {
           <div className="absolute bottom-20 left-14 bg-black/40 backdrop-blur-sm p-8 rounded-lg text-white max-w-lg">
             <h2 className="text-2xl font-medium mb-3">Quote of the Day</h2>
             <p className="text-xl italic mb-3">
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed finibus eros ut purus molestie porttitor. Vestibulum lacus enim, volutpat non hendrerit vulputate, fermentum nec dui."
+              "{quote?.q}"
             </p>
-            <p className="text-base">- Eric Huang, 2025</p>
+            <p className="text-base">- {quote?.a || 'Unknown'}</p>
+            <p className="text-xs mt-4 opacity-75">
+              Quotes provided by <a href="https://zenquotes.io/" target="_blank" rel="noopener noreferrer" className="underline">ZenQuotes</a>
+            </p>
           </div>
         </div>
       </div>
