@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +31,8 @@ export default function ProfileDropdown() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="focus:outline-none">
-        <div className="h-9 w-9 rounded-full bg-gray-300 overflow-hidden hover:ring-2 hover:ring-primary/20 transition-all">
+      <DropdownMenuTrigger>
+        <div className="h-9 w-9 rounded-full bg-gray-300 overflow-hidden">
           <img 
             src="/avatar-placeholder.svg" 
             alt="User avatar" 
@@ -39,12 +41,12 @@ export default function ProfileDropdown() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={handleProfileSettings} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleProfileSettings}>
           <Settings size={16} className="mr-2" />
           Profile Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
+        <DropdownMenuItem onClick={handleLogout} className="text-destructive">
           <LogOut size={16} className="mr-2" />
           Log Out
         </DropdownMenuItem>

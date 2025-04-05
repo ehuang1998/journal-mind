@@ -7,6 +7,7 @@ import { Progress } from "@/components/UI/progress";
 import { Badge } from "@/components/UI/badge";
 import { Plus, House, Search, NotebookPen, BarChart2, Settings } from "lucide-react";
 import Link from "next/link";
+import ProfileDropdown from "@/components/Dashboard/ProfileDropdown";
 
 export default function Dashboard() {
   // Sample data for the radar chart
@@ -76,9 +77,7 @@ export default function Dashboard() {
             <BarChart2 size={18} />
             <span>Statistics</span>
           </Link>
-          <div className="ml-4 h-9 w-9 rounded-full bg-gray-300 overflow-hidden">
-            <img src="/avatar-placeholder.svg" alt="User avatar" className="w-full h-full object-cover" />
-          </div>
+          <ProfileDropdown />
         </nav>
       </header>
 
