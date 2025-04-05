@@ -13,6 +13,7 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   async function handleResetPassword() {
@@ -23,6 +24,11 @@ export default function ResetPasswordPage() {
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long");
       return;
     }
 
@@ -41,15 +47,19 @@ export default function ResetPasswordPage() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to reset password");
+        throw new Error(data.error || "Failed to reset password");
       }
 
-      alert('Password reset successful! Please log in.');
-      router.push("/auth/login");
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/auth/login");
+      }, 2000);
     } catch (err) {
       console.error("Reset password error:", err);
-      setError("Failed to reset password. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to reset password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -93,6 +103,13 @@ export default function ResetPasswordPage() {
                 {error}
               </div>
             )}
+            
+            {success && (
+              <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+                Password reset successful! Redirecting to login...
+              </div>
+            )}
+            
             <div className="space-y-2">
               <Input
                 type="email"
@@ -100,6 +117,7 @@ export default function ResetPasswordPage() {
                 className="w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading || success}
               />
             </div>
             <div className="space-y-2">
@@ -109,6 +127,7 @@ export default function ResetPasswordPage() {
                 className="w-full"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                disabled={loading || success}
               />
             </div>
             <div className="space-y-2 pb-5">
@@ -118,13 +137,14 @@ export default function ResetPasswordPage() {
                 className="w-full"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading || success}
               />
             </div>
             <Button 
               className="w-full" 
               size="lg" 
               onClick={handleResetPassword}
-              disabled={loading}
+              disabled={loading || success}
             >
               {loading ? "Resetting Password..." : "Reset Password"}
             </Button>
