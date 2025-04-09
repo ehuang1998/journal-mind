@@ -23,9 +23,9 @@ async function getUserIdFromToken(request: Request) {
 // PUT handler for updating a journal entry
 export async function PUT(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = context.params.id;
+  const id = (await context.params).id;
   
   try {
     const userId = await getUserIdFromToken(request);
@@ -90,9 +90,9 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = context.params.id;
+  const id = (await context.params).id;
   
   try {
     const userId = await getUserIdFromToken(request);
