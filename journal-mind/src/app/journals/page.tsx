@@ -1,67 +1,136 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Search, Plus } from "lucide-react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/UI/dialog";
+
+interface Journal {
+  id: string;
+  title: string;
+  content: string;
+  emotion: string;
+  createdAt: string;
+}
+
+const ITEMS_PER_PAGE = 4; // Number of journals to show per page
 
 export default function JournalsPage() {
-  const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const entriesPerPage = 4;
+  const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [journalToDelete, setJournalToDelete] = useState<Journal | null>(null);
+  const [journalToEdit, setJournalToEdit] = useState<Journal | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const router = useRouter();
 
-  // Sample data - replace with actual data fetching
-  const entries = [
-    {
-      id: 1,
-      title: "Morning Reflections on Personal Growth",
-      excerpt: "Today I spent some time reflecting on my journey of personal development. The morning meditation session was particularly insightful, helping me understand my goals better.",
-      dateTime: "2025-03-11 • 08:30 AM",
-      mood: "reflective"
-    },
-    {
-      id: 2,
-      title: "Creative Writing Workshop Experience",
-      excerpt: "Attended an amazing creative writing workshop today. The instructor shared valuable techniques for character development and plot structure.",
-      dateTime: "2025-03-10 • 02:15 PM",
-      mood: "excited"
-    },
-    {
-      id: 3,
-      title: "Weekend Nature Walk Observations",
-      excerpt: "Took a peaceful walk in Central Park. The spring flowers are starting to bloom, and the air was crisp and refreshing.",
-      dateTime: "2025-03-09 • 10:45 AM",
-      mood: "peaceful"
-    },
-    {
-      id: 4,
-      title: "Project Milestone Achievement",
-      excerpt: "Successfully completed the first phase of our major project. The team's dedication and collaboration made this possible.",
-      dateTime: "2025-03-08 • 04:20 PM",
-      mood: "accomplished"
-    },
-    {
-      id: 5,
-      title: "Evening Meditation Insights",
-      excerpt: "Tonight's meditation session brought unexpected clarity about recent challenges. Sometimes answers come when we least expect them.",
-      dateTime: "2025-03-07 • 09:15 PM",
-      mood: "peaceful"
-    },
-    {
-      id: 6,
-      title: "Team Collaboration Success",
-      excerpt: "Today's brainstorming session was incredibly productive. Everyone brought unique perspectives that enhanced our solution.",
-      dateTime: "2025-03-06 • 03:30 PM",
-      mood: "excited"
+  // Fetch journals
+  useEffect(() => {
+    fetchJournals();
+  }, []);
+
+  const fetchJournals = async () => {
+    try {
+      const response = await fetch('/api/journals');
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/auth/login');
+          return;
+        }
+        throw new Error('Failed to fetch journals');
+      }
+      const data = await response.json();
+      setJournals(data);
+    } catch (error) {
+      console.error('Error fetching journals:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Filter journals based on search query
+  const filteredJournals = journals.filter(journal =>
+    journal.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    journal.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Calculate pagination
-  const totalPages = Math.ceil(entries.length / entriesPerPage);
-  const indexOfLastEntry = currentPage * entriesPerPage;
-  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
-  const currentEntries = entries.slice(indexOfFirstEntry, indexOfLastEntry);
+  const totalPages = Math.ceil(filteredJournals.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentJournals = filteredJournals.slice(startIndex, endIndex);
+
+  // Format date to match the design
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const handleJournalCreated = () => {
+    fetchJournals();
+  };
+
+  const handleEditClick = (journal: Journal) => {
+    setJournalToEdit(journal);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (journal: Journal) => {
+    setJournalToDelete(journal);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!journalToDelete) return;
+
+    try {
+      const response = await fetch(`/api/journals/${journalToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete journal');
+      }
+
+      // Close the dialog
+      setDeleteDialogOpen(false);
+      setJournalToDelete(null);
+
+      // Refresh the journals list
+      fetchJournals();
+    } catch (error) {
+      console.error('Error deleting journal:', error);
+      // You might want to show an error message to the user here
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,25 +152,40 @@ export default function JournalsPage() {
           <Input 
             placeholder="Search journals..." 
             className="pl-10 w-full max-w-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
         {/* Journal Entries */}
         <div className="space-y-4">
-          {currentEntries.map((entry) => (
+          {currentJournals.map((journal) => (
             <div 
-              key={entry.id}
+              key={journal.id}
               className="bg-card rounded-lg p-6 border border-border/40 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-semibold mb-2">{entry.title}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{entry.dateTime}</p>
-                  <p className="text-muted-foreground">{entry.excerpt}</p>
+                  <h2 className="text-xl font-semibold mb-2">{journal.title}</h2>
+                  <p className="text-sm text-muted-foreground mb-4">{formatDate(journal.createdAt)}</p>
+                  <p className="text-muted-foreground">{journal.content}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">Edit</Button>
-                  <Button variant="outline" size="sm" className="text-destructive">Delete</Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleEditClick(journal)}
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-destructive" 
+                    onClick={() => handleDeleteClick(journal)}
+                  >
+                    Delete
+                  </Button>
                 </div>
               </div>
             </div>
@@ -139,10 +223,50 @@ export default function JournalsPage() {
         </div>
       </main>
 
+      {/* Create Journal Modal */}
       <JournalEntryModal
         isOpen={isNewEntryModalOpen}
         onClose={() => setIsNewEntryModalOpen(false)}
+        onSuccess={handleJournalCreated}
       />
+
+      {/* Edit Journal Modal */}
+      <JournalEntryModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setJournalToEdit(null);
+        }}
+        onSuccess={handleJournalCreated}
+        journal={journalToEdit}
+        isEditing={true}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Journal Entry</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{journalToDelete?.title}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
