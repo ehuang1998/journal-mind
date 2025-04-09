@@ -20,6 +20,7 @@ interface Journal {
   title: string;
   content: string;
   emotion: string;
+  recommendation?: string;
   createdAt: string;
 }
 
@@ -168,7 +169,14 @@ export default function JournalsPage() {
                 <div>
                   <h2 className="text-xl font-semibold mb-2">{journal.title}</h2>
                   <p className="text-sm text-muted-foreground mb-4">{formatDate(journal.createdAt)}</p>
-                  <p className="text-muted-foreground">{journal.content}</p>
+                  <p className="text-muted-foreground mb-4">{journal.content}</p>
+                  
+                  {journal.recommendation && (
+                    <div className="mt-4 p-3 pl-5 pr-5 bg-muted rounded-md">
+                      <h3 className="text-sm font-medium mb-1">AI Generated Insights:</h3>
+                      <p className="text-sm text-muted-foreground">{journal.recommendation}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button 

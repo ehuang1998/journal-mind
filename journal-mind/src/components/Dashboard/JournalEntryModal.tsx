@@ -40,6 +40,20 @@ export default function JournalEntryModal({
       hour12: false 
     })
   });
+  
+  const [errors, setErrors] = useState({
+    title: '',
+    content: '',
+    emotion: '',
+  });
+
+  const moods = [
+    "excited",
+    "peaceful",
+    "accomplished",
+    "reflective",
+    "anxious"
+  ];
 
   // Populate form data if editing an existing journal
   useEffect(() => {
@@ -70,25 +84,31 @@ export default function JournalEntryModal({
           hour12: false 
         })
       });
+      setErrors({ title: '', content: '', emotion: '' }); // Reset errors
     }
   }, [journal, isEditing, isOpen]);
 
-  const moods = [
-    "excited",
-    "peaceful",
-    "accomplished",
-    "reflective",
-    "anxious"
-  ];
-
   const handleSubmit = async () => {
+    setErrors({ title: '', content: '', emotion: '' }); // Reset errors
+    let hasError = false;
+
+    if (!formData.title) {
+      setErrors(prev => ({ ...prev, title: 'Title is required' }));
+      hasError = true;
+    }
+    if (!formData.content) {
+      setErrors(prev => ({ ...prev, content: 'Content is required' }));
+      hasError = true;
+    }
+    if (!formData.emotion) {
+      setErrors(prev => ({ ...prev, emotion: 'Mood is required' }));
+      hasError = true;
+    }
+
+    if (hasError) return; // Stop submission if there are errors
+
     try {
       setIsSubmitting(true);
-
-      if (!formData.title || !formData.content || !formData.emotion) {
-        console.error('Missing required fields');
-        return;
-      }
 
       const url = isEditing && journal?.id 
         ? `/api/journals/${journal.id}` 
@@ -155,6 +175,7 @@ export default function JournalEntryModal({
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
             />
+            {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -193,6 +214,7 @@ export default function JournalEntryModal({
               value={formData.content}
               onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
             />
+            {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
           </div>
 
           <div className="space-y-2">
@@ -214,6 +236,7 @@ export default function JournalEntryModal({
                 ))}
               </SelectContent>
             </Select>
+            {errors.emotion && <p className="text-red-500 text-sm">{errors.emotion}</p>}
           </div>
 
           <div className="space-y-2">
