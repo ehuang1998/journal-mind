@@ -47,6 +47,14 @@ export default function JournalEntryModal({
     emotion: '',
   });
 
+  const [wordCounts, setWordCounts] = useState({
+    title: 0,
+    content: 0
+  });
+
+  const TITLE_WORD_LIMIT = 10;
+  const CONTENT_WORD_LIMIT = 300;
+
   const moods = [
     "excited",
     "peaceful",
@@ -54,6 +62,17 @@ export default function JournalEntryModal({
     "reflective",
     "anxious"
   ];
+
+  // Update word counts when form data changes
+  useEffect(() => {
+    const titleWords = formData.title.trim() ? formData.title.trim().split(/\s+/).length : 0;
+    const contentWords = formData.content.trim() ? formData.content.trim().split(/\s+/).length : 0;
+    
+    setWordCounts({
+      title: titleWords,
+      content: contentWords
+    });
+  }, [formData.title, formData.content]);
 
   // Populate form data if editing an existing journal
   useEffect(() => {
@@ -88,18 +107,51 @@ export default function JournalEntryModal({
     }
   }, [journal, isEditing, isOpen]);
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    const words = newTitle.trim().split(/\s+/);
+    
+    if (words.length <= TITLE_WORD_LIMIT || words.length === 1 && words[0] === '') {
+      setFormData(prev => ({ ...prev, title: newTitle }));
+      setErrors(prev => ({ ...prev, title: '' }));
+    } else {
+      setErrors(prev => ({ ...prev, title: `Title cannot exceed ${TITLE_WORD_LIMIT} words` }));
+    }
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = e.target.value;
+    const words = newContent.trim().split(/\s+/);
+    
+    if (words.length <= CONTENT_WORD_LIMIT || words.length === 1 && words[0] === '') {
+      setFormData(prev => ({ ...prev, content: newContent }));
+      setErrors(prev => ({ ...prev, content: '' }));
+    } else {
+      setErrors(prev => ({ ...prev, content: `Content cannot exceed ${CONTENT_WORD_LIMIT} words` }));
+    }
+  };
+
   const handleSubmit = async () => {
     setErrors({ title: '', content: '', emotion: '' }); // Reset errors
     let hasError = false;
 
-    if (!formData.title) {
+    // Validate fields
+    if (!formData.title.trim()) {
       setErrors(prev => ({ ...prev, title: 'Title is required' }));
       hasError = true;
-    }
-    if (!formData.content) {
-      setErrors(prev => ({ ...prev, content: 'Content is required' }));
+    } else if (wordCounts.title > TITLE_WORD_LIMIT) {
+      setErrors(prev => ({ ...prev, title: `Title cannot exceed ${TITLE_WORD_LIMIT} words` }));
       hasError = true;
     }
+
+    if (!formData.content.trim()) {
+      setErrors(prev => ({ ...prev, content: 'Content is required' }));
+      hasError = true;
+    } else if (wordCounts.content > CONTENT_WORD_LIMIT) {
+      setErrors(prev => ({ ...prev, content: `Content cannot exceed ${CONTENT_WORD_LIMIT} words` }));
+      hasError = true;
+    }
+
     if (!formData.emotion) {
       setErrors(prev => ({ ...prev, emotion: 'Mood is required' }));
       hasError = true;
@@ -165,15 +217,20 @@ export default function JournalEntryModal({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">
-              Title
-            </label>
+            <div className="flex justify-between">
+              <label htmlFor="title" className="text-sm font-medium">
+                Title
+              </label>
+              <span className={`text-xs ${wordCounts.title > TITLE_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {wordCounts.title}/{TITLE_WORD_LIMIT} words
+              </span>
+            </div>
             <Input
               id="title"
               placeholder="Enter your entry title..."
               className="w-full"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={handleTitleChange}
             />
             {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
           </div>
@@ -204,15 +261,20 @@ export default function JournalEntryModal({
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="content" className="text-sm font-medium">
-              Content
-            </label>
+            <div className="flex justify-between">
+              <label htmlFor="content" className="text-sm font-medium">
+                Content
+              </label>
+              <span className={`text-xs ${wordCounts.content > CONTENT_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {wordCounts.content}/{CONTENT_WORD_LIMIT} words
+              </span>
+            </div>
             <Textarea
               id="content"
               placeholder="Write your thoughts..."
               className="min-h-[200px]"
               value={formData.content}
-              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+              onChange={handleContentChange}
             />
             {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
           </div>

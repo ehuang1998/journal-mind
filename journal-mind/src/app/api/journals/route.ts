@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     // Get AI recommendation
     let recommendation = null;
     try {
-      const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/gemini-ai`, {
+      const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/gemini-ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
