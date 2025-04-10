@@ -149,7 +149,7 @@ export default function Dashboard() {
         {/* Left Sidebar */}
         <div className="space-y-6">
           <div className="text-2xl font-semibold mb-6 pl-3">
-              Welcome {user?.name || 'User'}
+              Welcome - {user?.name || 'User'}
           </div>
           {/* Monthly Summary */}
           <Card>

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/UI/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/UI/dialog";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/UI/select";
@@ -10,6 +10,7 @@ interface Journal {
   title: string;
   content: string;
   emotion: string;
+  recommendation?: string;
   createdAt?: string;
 }
 
@@ -51,6 +52,10 @@ export default function JournalEntryModal({
     title: 0,
     content: 0
   });
+
+  // New state for recommendation popup
+  const [showRecommendation, setShowRecommendation] = useState(false);
+  const [recommendation, setRecommendation] = useState('');
 
   const TITLE_WORD_LIMIT = 10;
   const CONTENT_WORD_LIMIT = 300;
@@ -131,6 +136,12 @@ export default function JournalEntryModal({
     }
   };
 
+  const handleCloseRecommendation = () => {
+    setShowRecommendation(false);
+    onClose();
+    onSuccess?.();
+  };
+
   const handleSubmit = async () => {
     setErrors({ title: '', content: '', emotion: '' }); // Reset errors
     let hasError = false;
@@ -185,7 +196,19 @@ export default function JournalEntryModal({
         throw new Error(error.message || `Failed to ${isEditing ? 'update' : 'create'} journal entry`);
       }
 
-      // Reset form and close modal
+      // Parse the response to get the recommendation
+      const data = await response.json();
+      
+      // Set recommendation and show the popup
+      if (data.recommendation) {
+        setRecommendation(data.recommendation);
+        setShowRecommendation(true);
+      } else {
+        // If no recommendation, just close the form
+        handleCloseRecommendation();
+      }
+
+      // Reset form
       setFormData({
         title: '',
         content: '',
@@ -197,131 +220,156 @@ export default function JournalEntryModal({
           hour12: false 
         })
       });
-      onClose();
-      onSuccess?.();
 
     } catch (error) {
       console.error(`Error ${isEditing ? 'updating' : 'creating'} journal:`, error);
+      // Close the modal in case of error
+      onClose();
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[1000px] max-h-[100vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
-            {isEditing ? 'Edit Journal Entry' : 'Create New Journal Entry'}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label htmlFor="title" className="text-sm font-medium">
-                Title
-              </label>
-              <span className={`text-xs ${wordCounts.title > TITLE_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
-                {wordCounts.title}/{TITLE_WORD_LIMIT} words
-              </span>
-            </div>
-            <Input
-              id="title"
-              placeholder="Enter your entry title..."
-              className="w-full"
-              value={formData.title}
-              onChange={handleTitleChange}
-            />
-            {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+    <>
+      <Dialog open={isOpen && !showRecommendation} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[1000px] max-h-[100vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              {isEditing ? 'Edit Journal Entry' : 'Create New Journal Entry'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="date" className="text-sm font-medium">
-                Date
+              <div className="flex justify-between">
+                <label htmlFor="title" className="text-sm font-medium">
+                  Title
+                </label>
+                <span className={`text-xs ${wordCounts.title > TITLE_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
+                  {wordCounts.title}/{TITLE_WORD_LIMIT} words
+                </span>
+              </div>
+              <Input
+                id="title"
+                placeholder="Enter your entry title..."
+                className="w-full"
+                value={formData.title}
+                onChange={handleTitleChange}
+              />
+              {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="date" className="text-sm font-medium">
+                  Date
+                </label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="time" className="text-sm font-medium">
+                  Time
+                </label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <label htmlFor="content" className="text-sm font-medium">
+                  Content
+                </label>
+                <span className={`text-xs ${wordCounts.content > CONTENT_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
+                  {wordCounts.content}/{CONTENT_WORD_LIMIT} words
+                </span>
+              </div>
+              <Textarea
+                id="content"
+                placeholder="Write your thoughts..."
+                className="min-h-[200px]"
+                value={formData.content}
+                onChange={handleContentChange}
+              />
+              {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="mood" className="text-sm font-medium">
+                How are you feeling right now?
+              </label>
+              <Select
+                value={formData.emotion}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, emotion: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your mood" />
+                </SelectTrigger>
+                <SelectContent>
+                  {moods.map((mood) => (
+                    <SelectItem key={mood} value={mood}>
+                      {mood.charAt(0).toUpperCase() + mood.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.emotion && <p className="text-red-500 text-sm">{errors.emotion}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="tags" className="text-sm font-medium">
+                Tags (comma separated)
               </label>
               <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="time" className="text-sm font-medium">
-                Time
-              </label>
-              <Input
-                id="time"
-                type="time"
-                value={formData.time}
-                onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
+                id="tags"
+                placeholder="happiness, reflection, goals..."
+                className="w-full"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label htmlFor="content" className="text-sm font-medium">
-                Content
-              </label>
-              <span className={`text-xs ${wordCounts.content > CONTENT_WORD_LIMIT ? 'text-red-500' : 'text-muted-foreground'}`}>
-                {wordCounts.content}/{CONTENT_WORD_LIMIT} words
-              </span>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? (isEditing ? 'Updating...' : 'Saving...') : (isEditing ? 'Update Entry' : 'Save Entry')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Recommendation Popup */}
+      <Dialog open={showRecommendation} onOpenChange={handleCloseRecommendation}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              AI Generated Insights
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="p-4 bg-muted rounded-md">
+              <p className="text-muted-foreground">{recommendation}</p>
             </div>
-            <Textarea
-              id="content"
-              placeholder="Write your thoughts..."
-              className="min-h-[200px]"
-              value={formData.content}
-              onChange={handleContentChange}
-            />
-            {errors.content && <p className="text-red-500 text-sm">{errors.content}</p>}
           </div>
-
-          <div className="space-y-2">
-            <label htmlFor="mood" className="text-sm font-medium">
-              Mood
-            </label>
-            <Select
-              value={formData.emotion}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, emotion: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select your mood" />
-              </SelectTrigger>
-              <SelectContent>
-                {moods.map((mood) => (
-                  <SelectItem key={mood} value={mood}>
-                    {mood.charAt(0).toUpperCase() + mood.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.emotion && <p className="text-red-500 text-sm">{errors.emotion}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="tags" className="text-sm font-medium">
-              Tags (comma separated)
-            </label>
-            <Input
-              id="tags"
-              placeholder="happiness, reflection, goals..."
-              className="w-full"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-4">
-          <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? (isEditing ? 'Updating...' : 'Saving...') : (isEditing ? 'Update Entry' : 'Save Entry')}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          
+          <DialogFooter>
+            <Button onClick={handleCloseRecommendation}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
