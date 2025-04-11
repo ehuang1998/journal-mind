@@ -138,61 +138,6 @@ export default function Dashboard() {
     { subject: 'Peaceful', value: 85, fullMark: 100 },
   ];
 
-  // Sample journal entries
-  // const entries = [
-  //   {
-  //     id: 1,
-  //     title: "Morning Reflections on Career Growth",
-  //     excerpt: "Today I had an inspiring meeting with my mentor. We discussed various opportunities for professional development...",
-  //     dateTime: "2025-03-11 at 09:15 AM",
-  //     mood: "excited",
-  //     isPinned: true
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Evening Walk Thoughts",
-  //     excerpt: "Took a peaceful walk in Central Park today. The spring flowers are starting to bloom, bringing new energy...",
-  //     dateTime: "2025-03-10 at 06:30 PM",
-  //     mood: "peaceful",
-  //     isPinned: true
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Project Breakthrough",
-  //     excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-  //     dateTime: "2025-03-09 at 03:45 PM",
-  //     mood: "accomplished",
-  //     isPinned: false
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Project Breakthrough",
-  //     excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-  //     dateTime: "2025-03-09 at 03:45 PM",
-  //     mood: "accomplished",
-  //     isPinned: false
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Project Breakthrough",
-  //     excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-  //     dateTime: "2025-03-09 at 03:45 PM",
-  //     mood: "accomplished",
-  //     isPinned: false
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Project Breakthrough",
-  //     excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-  //     dateTime: "2025-03-09 at 03:45 PM",
-  //     mood: "accomplished",
-  //     isPinned: false
-  //   }
-  // ];
-
-  // // Get only the last 3 entries
-  // const recentEntries = entries.slice(0, 3);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -204,7 +149,7 @@ export default function Dashboard() {
         {/* Left Sidebar */}
         <div className="space-y-6">
           <div className="text-2xl font-semibold mb-6 pl-3">
-              Welcome {user?.name || 'User'}
+              Welcome - {user?.name || 'User'}
           </div>
           {/* Monthly Summary */}
           <Card>

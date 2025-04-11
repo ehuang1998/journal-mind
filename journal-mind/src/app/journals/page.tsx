@@ -20,6 +20,7 @@ interface Journal {
   title: string;
   content: string;
   emotion: string;
+  recommendation?: string;
   createdAt: string;
 }
 
@@ -36,6 +37,30 @@ export default function JournalsPage() {
   const [journalToEdit, setJournalToEdit] = useState<Journal | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const router = useRouter();
+
+  // Map moods to color schemes
+  const moodColors: Record<string, { bg: string, text: string }> = {
+    excited: { 
+      bg: "bg-amber-100 dark:bg-amber-900", 
+      text: "text-amber-800 dark:text-amber-100" 
+    },
+    peaceful: { 
+      bg: "bg-blue-100 dark:bg-blue-900", 
+      text: "text-blue-800 dark:text-blue-100" 
+    },
+    accomplished: { 
+      bg: "bg-green-100 dark:bg-green-900", 
+      text: "text-green-800 dark:text-green-100" 
+    },
+    reflective: { 
+      bg: "bg-purple-100 dark:bg-purple-900", 
+      text: "text-purple-800 dark:text-purple-100" 
+    },
+    anxious: { 
+      bg: "bg-red-100 dark:bg-red-900", 
+      text: "text-red-800 dark:text-red-100" 
+    }
+  };
 
   // Fetch journals
   useEffect(() => {
@@ -159,37 +184,59 @@ export default function JournalsPage() {
 
         {/* Journal Entries */}
         <div className="space-y-4">
-          {currentJournals.map((journal) => (
-            <div 
-              key={journal.id}
-              className="bg-card rounded-lg p-6 border border-border/40 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-xl font-semibold mb-2">{journal.title}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{formatDate(journal.createdAt)}</p>
-                  <p className="text-muted-foreground">{journal.content}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleEditClick(journal)}
-                  >
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-destructive" 
-                    onClick={() => handleDeleteClick(journal)}
-                  >
-                    Delete
-                  </Button>
+          {currentJournals.map((journal) => {
+            const moodStyle = moodColors[journal.emotion] || { 
+              bg: "bg-gray-100 dark:bg-gray-800", 
+              text: "text-gray-800 dark:text-gray-100" 
+            };
+            
+            return (
+              <div 
+                key={journal.id}
+                className="bg-card rounded-lg p-6 border border-border/40 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex flex-col">
+                  <div className="flex justify-between items-start w-full mb-4">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-xl font-semibold">{journal.title}</h2>
+                        <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
+                          {journal.emotion}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{formatDate(journal.createdAt)}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditClick(journal)}
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-destructive" 
+                        onClick={() => handleDeleteClick(journal)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-muted-foreground mb-4">{journal.content}</p>
+                  
+                  {journal.recommendation && (
+                    <div className="mt-2 p-4 bg-muted rounded-md w-full">
+                      <h3 className="text-sm font-medium mb-1">AI Generated Insights:</h3>
+                      <p className="text-sm text-muted-foreground">{journal.recommendation}</p>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Pagination */}

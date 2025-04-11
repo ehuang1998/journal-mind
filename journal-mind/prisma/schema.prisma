@@ -70,13 +70,14 @@ model Verification {
 }
 
 model Journal {
-  id        String   @id @default(uuid())
-  title     String
-  content   String   @db.Text
-  emotion   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  authorId  String
-  author    User     @relation("JournalToUser", fields: [authorId], references: [id])
-  sharedWith User[]  @relation("journalSharedWith")
+  id            String   @id @default(uuid())
+  title         String
+  content       String   @db.Text
+  emotion       String
+  recommendation String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  authorId      String
+  author        User     @relation("JournalToUser", fields: [authorId], references: [id])
+  sharedWith    User[]   @relation("journalSharedWith")
 }

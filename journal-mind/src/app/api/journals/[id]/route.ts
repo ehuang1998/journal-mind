@@ -23,9 +23,9 @@ async function getUserIdFromToken(request: Request) {
 // PUT handler for updating a journal entry
 export async function PUT(
   request: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: { id: string } }
 ) {
-  const id = (await context.params).id;
+  const id = context.params.id;
   
   try {
     const userId = await getUserIdFromToken(request);
@@ -67,15 +67,37 @@ export async function PUT(
       );
     }
 
-    // Update the journal
+    // Get new AI recommendation only if content or emotion changed
+    let recommendation: string | null = (journal as any).recommendation || null;
+    if (content !== journal.content || emotion !== journal.emotion) {
+      try {
+        const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/gemini-ai`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content, emotion }),
+        });
+        
+        if (aiResponse.ok) {
+          const data = await aiResponse.json();
+          recommendation = data.recommendation;
+        }
+      } catch (aiError) {
+        console.error('Error getting AI recommendation:', aiError);
+        // Keep existing recommendation if AI fails
+      }
+    }
+
+    // Update the journal with new recommendation
     const updatedJournal = await prisma.journal.update({
       where: { id },
       data: {
         title,
         content,
         emotion,
-        // Don't update createdAt since we're just editing
-      },
+        ...(recommendation !== null ? { recommendation } : {})
+      } as any,
     });
 
     return NextResponse.json(updatedJournal);

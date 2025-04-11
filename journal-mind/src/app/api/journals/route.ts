@@ -40,8 +40,35 @@ export async function POST(request: Request) {
       );
     }
 
+    // Get AI recommendation
+    let recommendation = null;
+    try {
+      const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/gemini-ai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content, emotion }),
+      });
+      
+      if (aiResponse.ok) {
+        const data = await aiResponse.json();
+        recommendation = data.recommendation;
+      }
+    } catch (aiError) {
+      console.error('Error getting AI recommendation:', aiError);
+      // Continue without recommendation if AI fails
+    }
+
+    // Create journal with recommendation
     const journal = await prisma.journal.create({
-      data: { title, content, emotion, authorId: userId },
+      data: { 
+        title, 
+        content, 
+        emotion, 
+        authorId: userId,
+        ...(recommendation ? { recommendation } : {})
+      } as any,
     });
 
     return NextResponse.json(journal, { status: 201 });
