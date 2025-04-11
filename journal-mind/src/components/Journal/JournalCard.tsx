@@ -8,6 +8,26 @@ interface JournalCardProps {
   isPinned?: boolean;
 }
 
+function formatJournalDate(isoDate: string): string {
+  const date = new Date(isoDate);
+
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  let hours = date.getHours();
+  const minutes = `${date.getMinutes()}`.padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+
+  const time = `${hours}:${minutes} ${ampm}`;
+
+  return `${year}-${month}-${day} at ${time}`;
+}
+
+
 export default function JournalCard({
   title,
   excerpt,
@@ -66,7 +86,7 @@ export default function JournalCard({
             <circle cx="12" cy="12" r="10" strokeWidth="2" />
             <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          {dateTime}
+          {formatJournalDate(dateTime)}
         </div>
         <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
           {mood}

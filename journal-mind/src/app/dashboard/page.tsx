@@ -20,11 +20,20 @@ interface User {
   createdAt?: string;  // Optional field
 }
 
+interface Journal {
+  id: string;
+  title: string;
+  content: string;
+  emotion: string;
+  createdAt: string;
+}
+
 export default function Dashboard() {
   const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
   // Add authentication state
   const [user, setUser] = useState<{ name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [journals, setJournals] = useState<Journal[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -85,6 +94,36 @@ export default function Dashboard() {
     }
   };
 
+  // Fetch user's journals
+  useEffect(() => {
+    async function fetchJournals() {
+      try {
+        const response = await fetch('/api/journals');
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push('/auth/login');
+            return;
+          }
+          throw new Error('Failed to fetch journals');
+        }
+        const data = await response.json();
+        setJournals(data.slice(0,3 )); // Only take the last 3 journals
+      } catch (error) {
+        console.error('Error fetching journals:', error);
+      }
+    }
+
+    fetchJournals();
+  }, [router]);
+
+  // Refresh journals after creating a new one
+  const handleJournalCreated = () => {
+    fetch('/api/journals')
+      .then(res => res.json())
+      .then(data => setJournals(data))
+      .catch(err => console.error('Error refreshing journals:', err));
+  };
+
   // Show loading state while checking authentication
   if (loading) {
     return <div className="p-6">Loading...</div>;
@@ -99,61 +138,6 @@ export default function Dashboard() {
     { subject: 'Peaceful', value: 85, fullMark: 100 },
   ];
 
-  // Sample journal entries
-  const entries = [
-    {
-      id: 1,
-      title: "Morning Reflections on Career Growth",
-      excerpt: "Today I had an inspiring meeting with my mentor. We discussed various opportunities for professional development...",
-      dateTime: "2025-03-11 at 09:15 AM",
-      mood: "excited",
-      isPinned: true
-    },
-    {
-      id: 2,
-      title: "Evening Walk Thoughts",
-      excerpt: "Took a peaceful walk in Central Park today. The spring flowers are starting to bloom, bringing new energy...",
-      dateTime: "2025-03-10 at 06:30 PM",
-      mood: "peaceful",
-      isPinned: true
-    },
-    {
-      id: 3,
-      title: "Project Breakthrough",
-      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-      dateTime: "2025-03-09 at 03:45 PM",
-      mood: "accomplished",
-      isPinned: false
-    },
-    {
-      id: 4,
-      title: "Project Breakthrough",
-      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-      dateTime: "2025-03-09 at 03:45 PM",
-      mood: "accomplished",
-      isPinned: false
-    },
-    {
-      id: 5,
-      title: "Project Breakthrough",
-      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-      dateTime: "2025-03-09 at 03:45 PM",
-      mood: "accomplished",
-      isPinned: false
-    },
-    {
-      id: 6,
-      title: "Project Breakthrough",
-      excerpt: "Finally solved that challenging coding problem that's been bothering me for days. The solution was simpler...",
-      dateTime: "2025-03-09 at 03:45 PM",
-      mood: "accomplished",
-      isPinned: false
-    }
-  ];
-
-  // Get only the last 3 entries
-  const recentEntries = entries.slice(0, 3);
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -165,7 +149,7 @@ export default function Dashboard() {
         {/* Left Sidebar */}
         <div className="space-y-6">
           <div className="text-2xl font-semibold mb-6 pl-3">
-              Welcome {user?.name || 'User'}
+              Welcome - {user?.name || 'User'}
           </div>
           {/* Monthly Summary */}
           <Card>
@@ -213,20 +197,32 @@ export default function Dashboard() {
               New Entry
             </Button>
           </div>
-          <div className="pb-3">Last Accessed:</div>
           {/* Journal Entries */}
-          <div className="space-y-4">
-            {recentEntries.map(entry => (
-              <JournalCard 
-                key={entry.id}
-                title={entry.title}
-                excerpt={entry.excerpt}
-                dateTime={entry.dateTime}
-                mood={entry.mood}
-                isPinned={entry.isPinned}
+          {journals.length === 0 ? (
+            <div className="text-center py-12">
+              <h2 className="text-xl font-semibold mb-2">No journal entries yet</h2>
+              <p className="text-muted-foreground mb-4">
+                Start your journaling journey by creating your first entry
+              </p>
+              <Button onClick={() => setIsNewEntryModalOpen(true)}>
+                Create First Entry
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {journals.map((journal) => (
+                <JournalCard 
+                key={journal.id}
+                title={journal.title}
+                excerpt={journal.content}
+                dateTime={journal.createdAt}
+                mood={journal.emotion}
+                //isPinned={entry.isPinned}
               />
             ))}
-          </div>
+              
+            </div>
+          )}
         </div>
         
         {/* Right Sidebar */}
@@ -263,6 +259,7 @@ export default function Dashboard() {
       <JournalEntryModal 
         isOpen={isNewEntryModalOpen}
         onClose={() => setIsNewEntryModalOpen(false)}
+        onSuccess={handleJournalCreated}
       />
     </div>
   );
