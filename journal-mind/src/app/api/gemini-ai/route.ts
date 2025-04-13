@@ -20,7 +20,7 @@ export async function POST(request: Request): Promise<Response> {
 
     // Generate a prompt for the AI
     const prompt = `
-      Analyze the following journal entry and provide a brief recommendation (max 40 words) to help the person improve their mental wellbeing. 
+      Analyze the following journal entry and provide a brief recommendation (max 50 words) to help the person improve their mental wellbeing. 
       The journal entry has an associated mood: ${emotion}.
       Be supportive, specific, and action-oriented in your recommendation.
       
