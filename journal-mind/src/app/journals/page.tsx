@@ -184,92 +184,106 @@ export default function JournalsPage() {
           />
         </div>
 
-        {/* Journal Entries */}
-        <div className="space-y-4">
-          {currentJournals.map((journal) => {
-            const moodStyle = moodColors[journal.emotion] || { 
-              bg: "bg-gray-100 dark:bg-gray-800", 
-              text: "text-gray-800 dark:text-gray-100" 
-            };
-            
-            return (
-              <div 
-                key={journal.id}
-                className="bg-card rounded-lg p-6 border border-border/40 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex flex-col">
-                  <div className="flex justify-between items-start w-full mb-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h2 className="text-xl font-semibold">{journal.title}</h2>
-                        <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
-                          {journal.emotion}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{formatDate(journal.createdAt)}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditClick(journal)}
-                      >
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-destructive" 
-                        onClick={() => handleDeleteClick(journal)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <p className="text-muted-foreground mb-4">{journal.content}</p>
-                  
-                  {journal.recommendation && (
-                    <div className="mt-2 p-4 bg-muted rounded-md w-full">
-                      <h3 className="text-sm font-medium mb-1">AI Generated Insights:</h3>
-                      <p className="text-sm text-muted-foreground">{journal.recommendation}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center gap-2 mt-8">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant={currentPage === page ? "default" : "outline"}
-              size="sm"
-              onClick={() => setCurrentPage(page)}
-            >
-              {page}
+        {/* Journal Entries - Conditionally render list or placeholder */}
+        {filteredJournals.length === 0 ? (
+          <div className="text-center py-12">
+            <h2 className="text-xl font-semibold mb-2">No journal entries yet</h2>
+            <p className="text-muted-foreground mb-4">
+              Start your journaling journey by creating your first entry
+            </p>
+            <Button onClick={() => setIsNewEntryModalOpen(true)}>
+              Create First Entry
             </Button>
-          ))}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {currentJournals.map((journal) => {
+              const moodStyle = moodColors[journal.emotion] || { 
+                bg: "bg-gray-100 dark:bg-gray-800", 
+                text: "text-gray-800 dark:text-gray-100" 
+              };
+              
+              return (
+                <div 
+                  key={journal.id}
+                  className="bg-card rounded-lg p-6 border border-border/40 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-start w-full mb-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <h2 className="text-xl font-semibold">{journal.title}</h2>
+                          <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
+                            {journal.emotion}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{formatDate(journal.createdAt)}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditClick(journal)}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-destructive" 
+                          onClick={() => handleDeleteClick(journal)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <p className="text-muted-foreground mb-4">{journal.content}</p>
+                    
+                    {journal.recommendation && (
+                      <div className="mt-2 p-4 bg-muted rounded-md w-full">
+                        <h3 className="text-sm font-medium mb-1">AI Generated Insights:</h3>
+                        <p className="text-sm text-muted-foreground">{journal.recommendation}</p>
+                      </div>
+                    )}
+                  </div>                 
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination - Conditionally render only if there are journals */}
+        {filteredJournals.length > 0 && totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </main>
 
       {/* Create Journal Modal */}
