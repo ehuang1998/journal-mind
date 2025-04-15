@@ -25,6 +25,7 @@ interface Journal {
   title: string;
   content: string;
   emotion: string;
+  recommendation?: string;
   createdAt: string;
 }
 
@@ -212,15 +213,17 @@ export default function Dashboard() {
             <div className="space-y-4">
               {journals.map((journal) => (
                 <JournalCard 
-                key={journal.id}
-                title={journal.title}
-                excerpt={journal.content}
-                dateTime={journal.createdAt}
-                mood={journal.emotion}
-                //isPinned={entry.isPinned}
-              />
-            ))}
-              
+                  key={journal.id}
+                  id={journal.id}
+                  title={journal.title}
+                  excerpt={journal.content}
+                  content={journal.content}
+                  dateTime={journal.createdAt}
+                  mood={journal.emotion}
+                  recommendation={journal.recommendation}
+                  onEditSuccess={handleJournalCreated}
+                />
+              ))}
             </div>
           )}
         </div>

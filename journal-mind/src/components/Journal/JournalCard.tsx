@@ -1,11 +1,17 @@
 import { Edit, Bookmark } from "lucide-react";
+import { useState } from "react";
+import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 
 interface JournalCardProps {
+  id: string;
   title: string;
   excerpt: string;
+  content: string;
   dateTime: string;
   mood: string;
+  recommendation?: string;
   isPinned?: boolean;
+  onEditSuccess?: () => void;
 }
 
 function formatJournalDate(isoDate: string): string {
@@ -29,12 +35,18 @@ function formatJournalDate(isoDate: string): string {
 
 
 export default function JournalCard({
+  id,
   title,
   excerpt,
+  content,
   dateTime,
   mood,
-  isPinned = false
+  recommendation,
+  isPinned = false,
+  onEditSuccess
 }: JournalCardProps) {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
   // Map moods to color schemes
   const moodColors: Record<string, { bg: string, text: string }> = {
     excited: { 
@@ -64,34 +76,71 @@ export default function JournalCard({
     text: "text-gray-800 dark:text-gray-100" 
   };
 
+  const handleEditClick = () => {
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditSuccess = () => {
+    setIsEditModalOpen(false);
+    // Call the parent's success handler if provided
+    if (onEditSuccess) {
+      onEditSuccess();
+    }
+  };
+
   return (
-    <div className="bg-card rounded-lg p-5 shadow-sm border border-border">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-medium">{title}</h3>
-        <div className="flex space-x-2">
-          <button className="text-muted-foreground hover:text-foreground">
-            <Edit size={18} />
-          </button>
-          <button className="text-muted-foreground hover:text-foreground">
-            <Bookmark size={18} className={isPinned ? "text-red-500" : ""} />
-          </button>
+    <>
+      <div className="bg-card rounded-lg p-5 shadow-sm border border-border">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="text-lg font-medium">{title}</h3>
+          <div className="flex space-x-2">
+            <button 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={handleEditClick}
+            >
+              <Edit size={18} />
+            </button>
+            {/* <button className="text-muted-foreground hover:text-foreground">
+              <Bookmark size={18} className={isPinned ? "text-red-500" : ""} />
+            </button> */}
+          </div>
+        </div>
+        
+        <p className="text-muted-foreground mb-3 line-clamp-2">{excerpt}</p>
+        
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" strokeWidth="2" />
+              <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            {formatJournalDate(dateTime)}
+          </div>
+          <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
+            {mood}
+          </span>
         </div>
       </div>
-      
-      <p className="text-muted-foreground mb-3 line-clamp-2">{excerpt}</p>
-      
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" strokeWidth="2" />
-            <path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          {formatJournalDate(dateTime)}
-        </div>
-        <span className={`px-2.5 py-0.5 ${moodStyle.bg} ${moodStyle.text} text-xs rounded-full`}>
-          {mood}
-        </span>
-      </div>
-    </div>
+
+      {/* Journal Edit Modal */}
+      <JournalEntryModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseModal}
+        onSuccess={handleEditSuccess}
+        journal={{
+          id,
+          title,
+          content,
+          emotion: mood,
+          recommendation,
+          createdAt: dateTime
+        }}
+        isEditing={true}
+      />
+    </>
   );
 }

@@ -145,7 +145,6 @@ export default function JournalsPage() {
       fetchJournals();
     } catch (error) {
       console.error('Error deleting journal:', error);
-      // You might want to show an error message to the user here
     }
   };
 

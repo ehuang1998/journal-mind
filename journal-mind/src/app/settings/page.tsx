@@ -1,17 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/UI/input";
 import { Button } from "@/components/UI/button";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { useRouter } from "next/navigation";
+
+// Define the User type
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
+  const router = useRouter();
   
-  // User info state
+  // Loading state
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Display name state (only updates after form submission)
+  const [displayName, setDisplayName] = useState({
+    firstName: "",
+    lastName: ""
+  });
+  
+  // User info state (form values)
   const [userInfo, setUserInfo] = useState({
-    email: "support@profilepress.net",
-    firstName: "John",
-    lastName: "Doe"
+    email: "",
+    firstName: "",
+    lastName: ""
   });
 
   // Password state
@@ -30,6 +50,53 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState("");
   const [infoSuccess, setInfoSuccess] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
+
+  // Fetch user data when component mounts
+  useEffect(() => {
+    async function fetchUserData() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/auth/session');
+        
+        if (!response.ok) {
+          // Redirect to login if not authenticated
+          router.push('/auth/login');
+          return;
+        }
+        
+        const data = await response.json();
+        if (data.user) {
+          // Parse the user's name into first name and last name
+          let firstName = "";
+          let lastName = "";
+          
+          if (data.user.name) {
+            const nameParts = data.user.name.split(' ');
+            firstName = nameParts[0] || "";
+            lastName = nameParts.slice(1).join(' ') || "";
+          }
+          
+          // Set both display name and form values
+          setDisplayName({
+            firstName,
+            lastName
+          });
+          
+          setUserInfo({
+            email: data.user.email || "",
+            firstName,
+            lastName
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchUserData();
+  }, [router]);
 
   const handleUserInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,20 +119,32 @@ export default function SettingsPage() {
     setInfoSuccess("");
 
     try {
-      // API call would go here
-      // const response = await fetch('/api/user/update-info', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(userInfo),
-      // });
+      // Call the API to update user profile
+      const response = await fetch('/api/user/update-profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify(userInfo),
+      });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update profile');
+      }
+
+      // Update the display name only after successful update
+      setDisplayName({
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName
+      });
+      
       setInfoSuccess("Your account information has been updated successfully.");
     } catch (error) {
-      setInfoError("There was a problem updating your information.");
+      const errorMessage = (error as Error).message || "There was a problem updating your information.";
+      setInfoError(errorMessage);
     } finally {
       setIsUpdatingInfo(false);
     }
@@ -75,7 +154,7 @@ export default function SettingsPage() {
     e.preventDefault();
     setPasswordError("");
     setPasswordSuccess("");
-    
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError("New password and confirmation don't match.");
       return;
@@ -84,20 +163,24 @@ export default function SettingsPage() {
     setIsUpdatingPassword(true);
 
     try {
-      // API call would go here
-      // const response = await fetch('/api/user/change-password', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     currentPassword: passwordData.currentPassword,
-      //     newPassword: passwordData.newPassword,
-      //   }),
-      // });
+      // HTTP-only cookies are automatically sent with the request when using credentials: 'include'
+      const response = await fetch('/api/auth/update-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // This ensures cookies are sent with the request
+        body: JSON.stringify({
+          oldPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to update password');
+      }
 
       setPasswordData({
         currentPassword: "",
@@ -107,11 +190,26 @@ export default function SettingsPage() {
 
       setPasswordSuccess("Your password has been changed successfully.");
     } catch (error) {
-      setPasswordError("There was a problem updating your password.");
+      const errorMessage = (error as Error).message || "There was a problem updating your password.";
+      setPasswordError(errorMessage);
     } finally {
       setIsUpdatingPassword(false);
     }
   };
+
+  // Show loading state while fetching user data
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <DashboardHeader />
+        <main className="container mx-auto px-6 py-8">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-lg">Loading your profile information...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,12 +222,12 @@ export default function SettingsPage() {
             <div className="flex flex-col items-center mb-6">
               <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4">
                 <img
-                  src="https://avatars.githubusercontent.com/u/124599?v=4"
+                  src="/avatar-placeholder.svg"
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <h2 className="text-lg font-semibold">{userInfo.firstName} {userInfo.lastName}</h2>
+              <h2 className="text-lg font-semibold">{displayName.firstName} {displayName.lastName}</h2>
             </div>
             
             <div className="bg-card rounded-lg border border-border overflow-hidden">
@@ -158,16 +256,6 @@ export default function SettingsPage() {
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
                     Change Password
-                  </button>
-                </li>
-                <li>
-                  <button className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    Logout
                   </button>
                 </li>
               </ul>
