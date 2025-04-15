@@ -1,9 +1,12 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/UI/input";
 import { Button } from "@/components/UI/button";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/UI/avatar";
+import { Upload } from "lucide-react";
+import { avatarEvents } from "@/lib/avatarEvents";
 
 // Define the User type
 interface User {
@@ -12,11 +15,13 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  image?: string;
 }
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("account");
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Loading state
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +39,12 @@ export default function SettingsPage() {
     lastName: ""
   });
 
+  // Avatar state
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarSuccess, setAvatarSuccess] = useState("");
+
   // Password state
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -50,6 +61,9 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState("");
   const [infoSuccess, setInfoSuccess] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
+
+  const [lastUpdateTime, setLastUpdateTime] = useState(Date.now());
+  const [avatarImgError, setAvatarImgError] = useState(false);
 
   // Fetch user data when component mounts
   useEffect(() => {
@@ -87,6 +101,11 @@ export default function SettingsPage() {
             firstName,
             lastName
           });
+
+          // Set avatar if available
+          if (data.user.image) {
+            setAvatar(data.user.image);
+          }
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -110,6 +129,109 @@ export default function SettingsPage() {
     setPasswordData(prev => ({ ...prev, [name]: value }));
     setPasswordError("");
     setPasswordSuccess("");
+  };
+
+  const handleAvatarClick = () => {
+    // Trigger file input click
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset status
+    setAvatarError("");
+    setAvatarSuccess("");
+
+    // File validation
+    if (!file.type.startsWith('image/')) {
+      setAvatarError("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Image size must be less than 5MB");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+
+    try {
+      // First try the standard file upload approach
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      // If available, also prepare a base64 version as backup
+      let dataUrl = null;
+      try {
+        dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      } catch (e) {
+        console.error('Failed to convert file to data URL:', e);
+        // Continue with just the formData approach
+      }
+
+      // First try the standard formData upload
+      const response = await fetch('/api/user/update-avatar', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      let result: any;
+      
+      // If the standard approach fails and we have a dataUrl, try the alternative approach
+      if (!response.ok && dataUrl) {
+        console.log('Standard upload failed, trying alternative approach');
+        
+        const alternativeResponse = await fetch('/api/user/alternative-avatar', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ dataUrl }),
+        });
+        
+        result = await alternativeResponse.json();
+        
+        if (!alternativeResponse.ok) {
+          throw new Error(result.error || 'Failed to update avatar');
+        }
+      } else {
+        result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to update avatar');
+        }
+      }
+
+      // Update avatar with the new URL
+      setAvatar(result.user.image);
+      // Update timestamp to force image refresh
+      setLastUpdateTime(Date.now());
+      setAvatarImgError(false); // Reset error state
+      setAvatarSuccess("Avatar updated successfully");
+      
+      // Trigger avatar update event to notify other components
+      avatarEvents.triggerUpdate();
+    } catch (error) {
+      const errorMessage = (error as Error).message || "There was a problem updating your avatar";
+      setAvatarError(errorMessage);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarImageError = () => {
+    setAvatarImgError(true);
   };
 
   const handleUpdateInfo = async (e: React.FormEvent) => {
@@ -220,14 +342,50 @@ export default function SettingsPage() {
           {/* Sidebar */}
           <div className="w-full md:w-64 shrink-0">
             <div className="flex flex-col items-center mb-6">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden mb-4">
-                <img
-                  src="/avatar-placeholder.svg"
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative w-24 h-24 mb-4">
+                <div className="w-full h-full rounded-full overflow-hidden">
+                  {avatar && !avatarImgError ? (
+                    <img
+                      src={`${avatar}?t=${Date.now()}`}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                      onError={handleAvatarImageError}
+                    />
+                  ) : (
+                    <img
+                      src="/avatar-placeholder.svg"
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                
+                {/* Upload button overlay */}
+                <button 
+                  onClick={handleAvatarClick}
+                  className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-md hover:bg-primary/80 transition-colors"
+                  title="Upload new avatar"
+                >
+                  <Upload size={16} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </button>
               </div>
               <h2 className="text-lg font-semibold">{displayName.firstName} {displayName.lastName}</h2>
+              {avatarSuccess && (
+                <p className="text-sm text-green-600 mt-1">{avatarSuccess}</p>
+              )}
+              {avatarError && (
+                <p className="text-sm text-red-600 mt-1">{avatarError}</p>
+              )}
+              {isUploadingAvatar && (
+                <p className="text-sm text-muted-foreground mt-1">Uploading...</p>
+              )}
             </div>
             
             <div className="bg-card rounded-lg border border-border overflow-hidden">

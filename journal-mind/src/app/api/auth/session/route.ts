@@ -45,9 +45,9 @@ export async function GET(req: NextRequest) {
       );
     }
     
-    // Get user from database
+    // Get user from database - include the image field
     const userResult = await pool.query(
-      'SELECT id, email, name, "createdAt" FROM "user" WHERE id = $1',
+      'SELECT id, email, name, image, "createdAt" FROM "user" WHERE id = $1',
       [userId]
     );
     
@@ -60,12 +60,13 @@ export async function GET(req: NextRequest) {
     
     const user = userResult.rows[0];
     
-    // Return user info
+    // Return user info, including the image URL
     return NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
+        image: user.image,
         createdAt: user.createdAt,
       }
     });
