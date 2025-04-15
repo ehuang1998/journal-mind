@@ -142,7 +142,7 @@ export default function LoginPage() {
               />
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 pb-5">
               <Input
                 type="password"
                 placeholder="Password"
@@ -151,14 +151,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              <div className="text-right pb-5">
+              {/* <div className="text-right pb-5">
                 <Link
                   href="/auth/reset-password"
                   className="text-sm text-primary hover:underline"
                 >
                   Forgot Password?
                 </Link>
-              </div>
+              </div> */}
             </div>
             <Button 
               className="w-full" 
@@ -168,40 +168,6 @@ export default function LoginPage() {
             >
               {loading ? "Logging in..." : "Log In"}
             </Button>
-
-            {/* <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-background px-2 text-muted-foreground">
-                  OR CONTINUE WITH
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full" size="lg">
-                <Image
-                  src="/google.svg"
-                  alt="Google"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                Continue with Google
-              </Button>
-              <Button variant="outline" className="w-full" size="lg">
-                <Image
-                  src="/apple.svg"
-                  alt="Apple"
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
-                Continue with Apple
-              </Button>
-            </div> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
