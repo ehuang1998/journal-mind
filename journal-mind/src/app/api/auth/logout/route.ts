@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { verify } from 'jsonwebtoken';
+import { verify, JwtPayload } from 'jsonwebtoken';
 import { Pool } from 'pg';
 
 const pool = new Pool({
@@ -10,7 +10,12 @@ const pool = new Pool({
 // Get secret from environment
 const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
 
-export async function POST(req: NextRequest) {
+// Define interface for expected token payload
+interface DecodedToken extends JwtPayload {
+  sessionId?: string;
+}
+
+export async function POST(_req: NextRequest) {
   try {
     // Get the auth token from cookies
     const cookieStore = await cookies();
@@ -19,7 +24,8 @@ export async function POST(req: NextRequest) {
     if (authToken) {
       // Try to decode the token to get sessionId
       try {
-        const decodedToken = verify(authToken, secret) as any;
+        // Use the defined interface for the decoded token type
+        const decodedToken = verify(authToken, secret) as DecodedToken;
         
         if (decodedToken?.sessionId) {
           // Remove session from database
@@ -28,7 +34,7 @@ export async function POST(req: NextRequest) {
             [decodedToken.sessionId]
           );
         }
-      } catch (error) {
+      } catch (error: unknown) {
         // Token might be invalid, just continue to delete the cookie
         console.error('Error decoding token during logout:', error);
       }
@@ -38,10 +44,14 @@ export async function POST(req: NextRequest) {
     cookieStore.delete('auth_token');
     
     return NextResponse.json({ message: 'Logged out successfully' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Logout error:', error);
+    let errorMessage = 'Failed to log out';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Failed to log out' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

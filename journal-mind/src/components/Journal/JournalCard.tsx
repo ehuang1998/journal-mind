@@ -1,4 +1,4 @@
-import { Edit, Bookmark } from "lucide-react";
+import { Edit } from "lucide-react";
 import { useState } from "react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 
@@ -10,7 +10,6 @@ interface JournalCardProps {
   dateTime: string;
   mood: string;
   recommendation?: string;
-  isPinned?: boolean;
   onEditSuccess?: () => void;
 }
 
@@ -42,7 +41,6 @@ export default function JournalCard({
   dateTime,
   mood,
   recommendation,
-  isPinned = false,
   onEditSuccess
 }: JournalCardProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -104,9 +102,6 @@ export default function JournalCard({
             >
               <Edit size={18} />
             </button>
-            {/* <button className="text-muted-foreground hover:text-foreground">
-              <Bookmark size={18} className={isPinned ? "text-red-500" : ""} />
-            </button> */}
           </div>
         </div>
         

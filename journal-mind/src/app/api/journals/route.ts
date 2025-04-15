@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verify } from 'jsonwebtoken';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 // Get secret from environment
 const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
@@ -60,22 +61,29 @@ export async function POST(request: Request) {
       // Continue without recommendation if AI fails
     }
 
+    // Define the create data type specifically
+    const createData: Prisma.JournalCreateInput = {
+      title,
+      content,
+      emotion,
+      author: { connect: { id: userId } }, // Correct way to link relation
+      ...(recommendation ? { recommendation } : {})
+    };
+
     // Create journal with recommendation
     const journal = await prisma.journal.create({
-      data: { 
-        title, 
-        content, 
-        emotion, 
-        authorId: userId,
-        ...(recommendation ? { recommendation } : {})
-      } as any,
+      data: createData, // Use the defined type
     });
 
     return NextResponse.json(journal, { status: 201 });
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (error: unknown) { // Add unknown type
+    console.error('Error creating journal:', error);
+    let errorMessage = 'Failed to create journal';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Failed to create journal' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -98,10 +106,14 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(journals);
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (error: unknown) { // Add unknown type
+    console.error('Error fetching journals:', error);
+    let errorMessage = 'Failed to fetch journals';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Failed to fetch journals' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { House, Search, NotebookPen, BarChart2 } from "lucide-react";
+import Image from "next/image";
+import { House, NotebookPen, BarChart2 } from "lucide-react";
 import ProfileDropdown from "./ProfileDropdown";
 
 export default function DashboardHeader() {
@@ -7,12 +8,11 @@ export default function DashboardHeader() {
     <header className="flex items-center justify-between px-10 py-4 border-b border-border">
       <div className="flex items-center">
         <div className="mr-4 text-primary">
-          <img 
+          <Image 
             src="/logo.svg" 
             alt="JournalMind Logo" 
             width={35} 
             height={35} 
-            className="text-primary"
           />
         </div>
         <h1 className="text-xl font-semibold">JournalMind</h1>

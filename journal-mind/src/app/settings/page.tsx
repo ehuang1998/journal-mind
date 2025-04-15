@@ -1,21 +1,19 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Input } from "@/components/UI/input";
 import { Button } from "@/components/UI/button";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/UI/avatar";
 import { Upload } from "lucide-react";
 import { avatarEvents } from "@/lib/avatarEvents";
 
-// Define the User type
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  image?: string;
+// Define the expected API response type for avatar update
+interface AvatarUpdateResponse {
+  user: {
+    image: string;
+  };
+  error?: string; // Optional error message
 }
 
 export default function SettingsPage() {
@@ -185,7 +183,7 @@ export default function SettingsPage() {
         body: formData,
       });
 
-      let result: any;
+      let result: AvatarUpdateResponse;
       
       // If the standard approach fails and we have a dataUrl, try the alternative approach
       if (!response.ok && dataUrl) {
@@ -343,24 +341,27 @@ export default function SettingsPage() {
           <div className="w-full md:w-64 shrink-0">
             <div className="flex flex-col items-center mb-6">
               <div className="relative w-24 h-24 mb-4">
-                <div className="w-full h-full rounded-full overflow-hidden">
+                <div className="w-full h-full rounded-full overflow-hidden relative">
                   {avatar && !avatarImgError ? (
-                    <img
-                      src={`${avatar}?t=${Date.now()}`}
-                      alt="Profile"
-                      className="w-full h-full object-cover"
+                    <Image
+                      src={`${avatar}?t=${lastUpdateTime}`}
+                      alt="Profile Avatar"
+                      fill
+                      className="object-cover"
                       onError={handleAvatarImageError}
+                      priority
                     />
                   ) : (
-                    <img
+                    <Image
                       src="/avatar-placeholder.svg"
-                      alt="Profile"
-                      className="w-full h-full object-cover"
+                      alt="Default Profile Avatar"
+                      fill
+                      className="object-cover"
+                      priority
                     />
                   )}
                 </div>
                 
-                {/* Upload button overlay */}
                 <button 
                   onClick={handleAvatarClick}
                   className="absolute bottom-0 right-0 bg-primary text-white p-1.5 rounded-full shadow-md hover:bg-primary/80 transition-colors"

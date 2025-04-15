@@ -235,12 +235,16 @@ export async function POST(req: NextRequest) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
+    let errorMessage = 'Authentication failed';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
       { 
         error: 'Authentication failed',
-        details: error.message,
+        details: errorMessage,
       },
       { status: 500 }
     );

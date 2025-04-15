@@ -1,36 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma'; 
-import { verify } from 'jsonwebtoken';
+import { verify, JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcrypt';
 
 // Get secret from environment
 const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
 
-// Function to get user ID from auth token in cookies
-async function getUserIdFromCookies(req: NextRequest): Promise<string | null> {
+// Define interface for expected token payload
+interface DecodedToken extends JwtPayload {
+  userId?: string;
+}
+
+// Helper function to get userId from cookies
+async function getUserIdFromCookies(): Promise<string | null> {
+  // Await the cookies() call
+  const cookieStore = await cookies(); 
+  const authToken = cookieStore.get('auth_token')?.value;
+
+  if (!authToken) {
+    return null;
+  }
+
   try {
-    // Get the auth token from cookies
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get('auth_token')?.value;
-    
-    if (!authToken) {
-      return null;
-    }
-    
-    // Verify and decode the JWT
-    const decoded = verify(authToken, secret) as { userId: string };
-    return decoded.userId;
+    const decoded = verify(authToken, secret) as DecodedToken;
+    return decoded.userId ?? null;
   } catch (error) {
-    console.error('Token verification error:', error);
+    console.error('Error verifying token in update-password:', error);
     return null;
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    // Get userId from cookies instead of Authorization header
-    const userId = await getUserIdFromCookies(req);
+    // Get userId from cookies
+    const userId = await getUserIdFromCookies();
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,7 +43,10 @@ export async function POST(req: NextRequest) {
     const { oldPassword, newPassword } = await req.json();
 
     if (!oldPassword || !newPassword) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Old password and new password are required' },
+        { status: 400 }
+      );
     }
 
     console.log('Updating password for user:', userId);
@@ -83,7 +90,7 @@ export async function POST(req: NextRequest) {
 
     console.log('Password updated successfully');
     return NextResponse.json({ message: 'Password updated successfully' });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Password update error:', error);
     return NextResponse.json(
       { error: 'An error occurred while updating the password' },

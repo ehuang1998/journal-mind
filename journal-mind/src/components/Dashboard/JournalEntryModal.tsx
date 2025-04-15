@@ -192,8 +192,15 @@ export default function JournalEntryModal({
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || `Failed to ${isEditing ? 'update' : 'create'} journal entry`);
+        // Read error message from response body
+        let errorMessage = `Failed to ${isEditing ? 'update' : 'create'} journal entry`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch { // Remove variable name entirely
+          // Ignore parsing error, stick with default message
+        }
+        throw new Error(errorMessage);
       }
 
       // Parse the response to get the recommendation
@@ -208,7 +215,7 @@ export default function JournalEntryModal({
         handleCloseRecommendation();
       }
 
-      // Reset form
+      // Reset form (moved from finally block, only reset on success)
       setFormData({
         title: '',
         content: '',
@@ -221,8 +228,13 @@ export default function JournalEntryModal({
         })
       });
 
-    } catch (error) {
-      console.error(`Error ${isEditing ? 'updating' : 'creating'} journal:`, error);
+    } catch (error: unknown) { // Add unknown type
+      let errorMessage = `Error ${isEditing ? 'updating' : 'creating'} journal`;
+      if (error instanceof Error) {
+        errorMessage = error.message; // Use message from thrown error
+      }
+      console.error(errorMessage, error); // Log the actual error object too
+      // TODO: Maybe show error message to the user?
       // Close the modal in case of error
       onClose();
     } finally {

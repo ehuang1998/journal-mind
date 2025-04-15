@@ -8,7 +8,8 @@ import {
 import { Settings, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/UI/avatar";
+import Image from "next/image";
+import { Avatar, AvatarFallback } from "@/components/UI/avatar";
 import { avatarEvents } from "@/lib/avatarEvents";
 
 // Interface for User data
@@ -23,14 +24,12 @@ interface User {
 export default function ProfileDropdown() {
   const router = useRouter(); // Initialize router for navigation
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [lastUpdateTime, setLastUpdateTime] = useState(0);
   const [imgError, setImgError] = useState(false);
 
   // Fetch current user data
   async function fetchUser() {
     try {
-      setLoading(true);
       const response = await fetch('/api/auth/session');
       if (response.ok) {
         const data = await response.json();
@@ -41,8 +40,6 @@ export default function ProfileDropdown() {
       }
     } catch (error) {
       console.error('Error fetching user:', error);
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -95,22 +92,24 @@ export default function ProfileDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none">
-        <Avatar className="h-9 w-9 rounded-full">
+        <Avatar className="h-9 w-9 rounded-full relative overflow-hidden">
           {user?.image && !imgError ? (
-            <div className="relative h-full w-full">
-              <img
-                src={`${user.image}?t=${Date.now()}`}
-                alt={user.name || "User avatar"}
-                className="h-full w-full object-cover rounded-full"
-                onError={handleImageError}
-              />
-            </div>
+            <Image
+              src={`${user.image}?t=${lastUpdateTime}`}
+              alt={user.name || "User avatar"}
+              fill
+              className="object-cover"
+              onError={handleImageError}
+              priority
+            />
           ) : (
-            <AvatarFallback className="bg-background p-0">
-              <img
+            <AvatarFallback className="bg-background p-0 relative w-full h-full">
+              <Image
                 src="/avatar-placeholder.svg"
                 alt="Default avatar"
-                className="h-full w-full object-cover rounded-full"
+                fill
+                className="object-cover rounded-full"
+                priority
               />
             </AvatarFallback>
           )}

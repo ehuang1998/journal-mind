@@ -12,26 +12,18 @@ import { Plus } from "lucide-react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 
-// Define user type for TypeScript type safety
-interface User {
-  id: string;
-  email: string;
-  name?: string;  // Optional field
-  createdAt?: string;  // Optional field
-}
-
+// Define the structure of a Journal entry
 interface Journal {
   id: string;
   title: string;
   content: string;
   emotion: string;
-  recommendation?: string;
   createdAt: string;
+  recommendation?: string | null;
 }
 
 export default function Dashboard() {
   const [isNewEntryModalOpen, setIsNewEntryModalOpen] = useState(false);
-  // Add authentication state
   const [user, setUser] = useState<{ name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [journals, setJournals] = useState<Journal[]>([]);
@@ -83,18 +75,6 @@ export default function Dashboard() {
     fetchUser();
   }, []);
   
-  // Handler for user logout
-  const handleLogout = async () => {
-    try {
-      // Call logout endpoint
-      await fetch('/api/auth/logout', { method: 'POST' });
-      // Redirect to login page after successful logout
-      router.push('/auth/login');
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
   // Fetch user's journals
   useEffect(() => {
     async function fetchJournals() {
@@ -220,7 +200,7 @@ export default function Dashboard() {
                   content={journal.content}
                   dateTime={journal.createdAt}
                   mood={journal.emotion}
-                  recommendation={journal.recommendation}
+                  recommendation={journal.recommendation ?? undefined}
                   onEditSuccess={handleJournalCreated}
                 />
               ))}

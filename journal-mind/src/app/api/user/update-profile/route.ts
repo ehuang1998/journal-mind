@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { verify } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -7,7 +8,7 @@ import { cookies } from 'next/headers';
 const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
 
 // Function to get user ID from auth token in cookies
-async function getUserIdFromCookies(req: NextRequest): Promise<string | null> {
+async function getUserIdFromCookies(): Promise<string | null> {
   try {
     // Get the auth token from cookies
     const cookieStore = await cookies();
@@ -29,7 +30,7 @@ async function getUserIdFromCookies(req: NextRequest): Promise<string | null> {
 export async function PUT(req: NextRequest) {
   try {
     // Get userId from cookies
-    const userId = await getUserIdFromCookies(req);
+    const userId = await getUserIdFromCookies();
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -67,19 +68,27 @@ export async function PUT(req: NextRequest) {
         name: updatedUser.name
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Profile update error:', error);
     
-    // If the error is a Prisma error with code P2002, it's a unique constraint violation (email already exists)
-    if (error.code === 'P2002' && error.meta?.target?.includes('email')) {
-      return NextResponse.json(
-        { error: 'This email is already in use' },
-        { status: 409 }
-      );
+    // Check for Prisma unique constraint violation (P2002)
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002' && error.meta?.target === 'User_email_key') {
+        return NextResponse.json(
+          { error: 'This email is already in use' },
+          { status: 409 }
+        );
+      }
+    }
+    
+    // General error message
+    let errorMessage = 'An error occurred while updating your profile';
+    if (error instanceof Error) {
+        errorMessage = error.message;
     }
     
     return NextResponse.json(
-      { error: 'An error occurred while updating your profile' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

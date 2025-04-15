@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
@@ -62,13 +62,10 @@ export default function JournalsPage() {
     }
   };
 
-  // Fetch journals
-  useEffect(() => {
-    fetchJournals();
-  }, []);
-
-  const fetchJournals = async () => {
+  // Wrap fetchJournals in useCallback
+  const fetchJournals = useCallback(async () => {
     try {
+      setLoading(true); // Set loading true at the start
       const response = await fetch('/api/journals');
       if (!response.ok) {
         if (response.status === 401) {
@@ -81,10 +78,16 @@ export default function JournalsPage() {
       setJournals(data);
     } catch (error) {
       console.error('Error fetching journals:', error);
+      // Potentially set an error state here to show the user
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]); // Add router as a dependency for useCallback
+
+  // Fetch journals on initial mount and when fetchJournals changes
+  useEffect(() => {
+    fetchJournals();
+  }, [fetchJournals]); // Add fetchJournals to dependency array
 
   // Filter journals based on search query
   const filteredJournals = journals.filter(journal =>
@@ -294,7 +297,7 @@ export default function JournalsPage() {
           <DialogHeader>
             <DialogTitle>Delete Journal Entry</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{journalToDelete?.title}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{journalToDelete?.title}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2">

@@ -11,7 +11,7 @@ const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
 const BUCKET_NAME = 'avatars';
 
 // Function to get user ID from auth token in cookies
-async function getUserIdFromCookies(req: NextRequest): Promise<string | null> {
+async function getUserIdFromCookies(): Promise<string | null> {
   try {
     // Get the auth token from cookies
     const cookieStore = await cookies();
@@ -33,7 +33,7 @@ async function getUserIdFromCookies(req: NextRequest): Promise<string | null> {
 export async function POST(req: NextRequest) {
   try {
     // Get userId from cookies
-    const userId = await getUserIdFromCookies(req);
+    const userId = await getUserIdFromCookies();
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     
     // Upload to Supabase Storage
     const fileName = `avatar-${userId}-${Date.now()}`;
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(fileName, buffer, {
         contentType: file.type,
@@ -96,10 +96,14 @@ export async function POST(req: NextRequest) {
         image: updatedUser.image
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Avatar update error:', error);
+    let errorMessage = 'An error occurred while updating your avatar';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'An error occurred while updating your avatar' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

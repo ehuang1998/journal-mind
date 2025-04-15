@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
-import { Checkbox } from "@/components/UI/checkbox";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -97,7 +96,7 @@ export default function LoginPage() {
           <div className="absolute bottom-20 left-14 bg-black/40 backdrop-blur-sm p-8 rounded-lg text-white max-w-lg">
             <h2 className="text-2xl font-medium mb-3">Quote of the Day</h2>
             <p className="text-xl italic mb-3">
-              "{quote?.q}"
+              &quot;{quote?.q}&quot;
             </p>
             <p className="text-base">- {quote?.a || 'Unknown'}</p>
             <p className="text-xs mt-4 opacity-75">
@@ -170,7 +169,7 @@ export default function LoginPage() {
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/auth/signup" className="text-primary hover:underline">
                 Create Account
               </Link>

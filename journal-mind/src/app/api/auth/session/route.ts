@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
-import { verify } from 'jsonwebtoken';
+import { verify, JwtPayload } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
 const pool = new Pool({
@@ -10,7 +10,12 @@ const pool = new Pool({
 // Get secret from environment
 const secret = process.env.BETTER_AUTH_SECRET || 'supersecret';
 
-export async function GET(req: NextRequest) {
+// Define interface for expected token payload
+interface DecodedToken extends JwtPayload {
+  userId?: string;
+}
+
+export async function GET(_req: NextRequest) {
   try {
     // Get the auth token from cookies
     const cookieStore = await cookies();
@@ -24,9 +29,10 @@ export async function GET(req: NextRequest) {
     }
     
     // Verify and decode the JWT
-    let decodedToken: any;
+    let decodedToken: DecodedToken;
     try {
-      decodedToken = verify(authToken, secret);
+      // Use the defined interface
+      decodedToken = verify(authToken, secret) as DecodedToken;
     } catch (error) {
       console.error('Invalid token:', error);
       return NextResponse.json(
@@ -71,10 +77,14 @@ export async function GET(req: NextRequest) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Session error:', error);
+    let errorMessage = 'Failed to get session';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     return NextResponse.json(
-      { error: 'Failed to get session' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

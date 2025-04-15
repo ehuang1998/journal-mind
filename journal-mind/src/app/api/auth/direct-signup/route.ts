@@ -104,13 +104,19 @@ export async function POST(req: NextRequest) {
       // Release the client back to the pool
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating user:', error);
+    let errorMessage = 'Failed to create user';
+    let errorStack: string | undefined = undefined;
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorStack = error.stack;
+    }
     return NextResponse.json(
       { 
         error: 'Failed to create user',
-        details: error.message,
-        stack: error.stack
+        details: errorMessage,
+        stack: errorStack
       },
       { status: 500 }
     );
