@@ -31,13 +31,13 @@ export const auth = betterAuth({
   // For debugging purposes
   onApiRequest: (req: unknown) => {
     if (req && typeof req === 'object' && 'method' in req && typeof req.method === 'string' && 'path' in req && typeof req.path === 'string') {
-      console.log(`API Request: ${req.method} ${req.path}`);
+    console.log(`API Request: ${req.method} ${req.path}`);
       if (req.path === '/sign-up/email' && req.method === 'POST' && 'body' in req) {
-        try {
-          console.log('Sign-up request body:', req.body);
-        } catch (e) {
-          console.error('Could not log request body:', e);
-        }
+      try {
+        console.log('Sign-up request body:', req.body);
+      } catch (e) {
+        console.error('Could not log request body:', e);
+      }
       }
     } else {
       console.log('Received API Request (unknown format):', req);

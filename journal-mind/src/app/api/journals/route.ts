@@ -105,7 +105,12 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(journals);
+    // Return response with cache-control headers to prevent caching
+    return NextResponse.json(journals, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    });
   } catch (error: unknown) { // Add unknown type
     console.error('Error fetching journals:', error);
     let errorMessage = 'Failed to fetch journals';
