@@ -66,7 +66,7 @@ export async function GET(_req: NextRequest) {
     
     const user = userResult.rows[0];
     
-    // Return user info, including the image URL
+    // Return user info with cache-control headers
     return NextResponse.json({
       user: {
         id: user.id,
@@ -75,6 +75,11 @@ export async function GET(_req: NextRequest) {
         image: user.image,
         createdAt: user.createdAt,
       }
+    }, {
+      // Add headers to prevent caching of this sensitive route
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
     });
     
   } catch (error: unknown) {
