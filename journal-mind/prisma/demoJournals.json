@@ -1,123 +1,122 @@
 [
-    {
-      "title": "Started the month strong",
-      "content": "Felt motivated and productive today. Got a lot done before noon.",
-      "emotion": "Energized",
-      "recommendation": "Stick to your morning routine."
-    },
-    {
-      "title": "Stress levels rising",
-      "content": "Deadlines are piling up and I’m feeling the pressure.",
-      "emotion": "Stressed",
-      "recommendation": "Break work into smaller chunks and rest often."
-    },
-    {
-      "title": "A walk helped",
-      "content": "Went for a long walk today. Helped me clear my mind.",
-      "emotion": "Peaceful",
-      "recommendation": "Add daily walks into your routine."
-    },
-    {
-      "title": "Difficult conversation",
-      "content": "Had to confront a friend today. It was uncomfortable but necessary.",
-      "emotion": "Anxious",
-      "recommendation": "Prepare and reflect before tough conversations."
-    },
-    {
-      "title": "Good news at work",
-      "content": "Got recognition from my manager. Feeling proud.",
-      "emotion": "Accomplished",
-      "recommendation": "Celebrate small wins when they come."
-    },
-    {
-      "title": "Distracted all day",
-      "content": "Had trouble focusing. Too many things going on in my head.",
-      "emotion": "Unfocused",
-      "recommendation": "Limit distractions and schedule focused time blocks."
-    },
-    {
-      "title": "A slow, lazy day",
-      "content": "Didn’t get much done today, but it felt okay to rest.",
-      "emotion": "Relaxed",
-      "recommendation": "Don’t feel guilty for taking it slow."
-    },
-    {
-      "title": "Missing home",
-      "content": "Feeling homesick today. Haven’t talked to my family in a while.",
-      "emotion": "Nostalgic",
-      "recommendation": "Call someone close to you today."
-    },
-    {
-      "title": "Back to routine",
-      "content": "Got back to my usual routine. It felt grounding.",
-      "emotion": "Balanced",
-      "recommendation": "Keep a consistent sleep and work schedule."
-    },
-    {
-      "title": "Motivation boost",
-      "content": "Watched a great motivational video. Felt inspired.",
-      "emotion": "Inspired",
-      "recommendation": "Document your sources of inspiration."
-    },
-    {
-      "title": "Feeling disconnected",
-      "content": "Haven’t been very social lately. Feeling a bit lonely.",
-      "emotion": "Lonely",
-      "recommendation": "Reach out to a friend today."
-    },
-    {
-      "title": "Mid-month slump",
-      "content": "Productivity dipped mid-week. Might be burnout.",
-      "emotion": "Tired",
-      "recommendation": "Take a proper break, mentally and physically."
-    },
-    {
-      "title": "A mindful moment",
-      "content": "Tried meditating today. Just 10 minutes made a difference.",
-      "emotion": "Calm",
-      "recommendation": "Continue exploring mindfulness practices."
-    },
-    {
-      "title": "Woke up refreshed",
-      "content": "Slept early last night. Woke up feeling great!",
-      "emotion": "Rested",
-      "recommendation": "Maintain your sleep schedule this week."
-    },
-    {
-      "title": "Doubting myself",
-      "content": "Had some impostor syndrome today while working.",
-      "emotion": "Insecure",
-      "recommendation": "Write down what you've accomplished so far."
-    },
-    {
-      "title": "Unexpected kindness",
-      "content": "A stranger helped me carry something today. Restored my faith in people.",
-      "emotion": "Grateful",
-      "recommendation": "Pay the kindness forward."
-    },
-    {
-      "title": "Overthinking again",
-      "content": "Spent hours worrying about something trivial.",
-      "emotion": "Worried",
-      "recommendation": "Journal your thoughts to gain clarity."
-    },
-    {
-      "title": "Laughed a lot today",
-      "content": "Watched a comedy show with friends. Felt really good to laugh.",
-      "emotion": "Joyful",
-      "recommendation": "Laugh more intentionally, it’s healing."
-    },
-    {
-      "title": "Feeling ambitious",
-      "content": "Started drafting some goals for next month.",
-      "emotion": "Motivated",
-      "recommendation": "Break goals into steps and track weekly."
-    },
-    {
-      "title": "Reflecting on growth",
-      "content": "Re-read some older entries. I’ve changed a lot.",
-      "emotion": "Reflective",
-      "recommendation": "Celebrate your growth — it matters."
-    }
-  ]
-  
+  {
+    "title": "Planning a new adventure",
+    "content": "I’ve been feeling incredibly excited lately. A new opportunity is on the horizon, and just thinking about the possibilities gives me so much energy. I spent the day planning, researching, and mentally preparing for what's ahead. There’s a rush that comes with the unknown, and I’m ready to take the leap.",
+    "emotion": "excited",
+    "recommendation": "Channel your excitement into concrete steps to move forward."
+  },
+  {
+    "title": "Looking forward to change",
+    "content": "The idea of trying something completely different has me buzzing with anticipation. Today, I sat down and wrote out some ideas for projects I’ve always wanted to pursue. There’s a spark I haven’t felt in a long time, and I’m going to ride that wave while it lasts.",
+    "emotion": "excited",
+    "recommendation": "Turn your ideas into action plans while the momentum is high."
+  },
+  {
+    "title": "Morning serenity",
+    "content": "I woke up earlier than usual today and just sat by the window with a warm cup of tea. The silence, the soft glow of the morning sun — it was exactly what I needed. I didn’t check my phone, didn’t rush into tasks. Just existed for a little while. That quiet space gave me clarity and calm.",
+    "emotion": "peaceful",
+    "recommendation": "Start your mornings slowly and protect that sense of stillness."
+  },
+  {
+    "title": "An afternoon to remember",
+    "content": "I went for a long walk by the lake this afternoon. The breeze, the water, the sky — everything was in harmony. I felt like I was part of something much bigger than myself. Nature has a way of grounding me, and today it brought me peace I didn’t realize I was missing.",
+    "emotion": "peaceful",
+    "recommendation": "Spend time in nature to reconnect with yourself."
+  },
+  {
+    "title": "Crossed off my big to-do",
+    "content": "Today I finally finished something I’ve been putting off for weeks. The feeling of completing it is so satisfying. I had doubts, procrastinated, even thought I wouldn’t pull it off — but here I am. Proud and a little surprised. I’ve got this.",
+    "emotion": "accomplished",
+    "recommendation": "Acknowledge your progress and celebrate even the small victories."
+  },
+  {
+    "title": "Hard work paying off",
+    "content": "There’s a quiet confidence I feel today. A result came in from something I worked really hard on, and it reflected the effort I put in. This kind of feedback is rare, but when it comes, it’s such a boost. I'm reminded that persistence is worth it.",
+    "emotion": "accomplished",
+    "recommendation": "Document what worked well and keep building from it."
+  },
+  {
+    "title": "Reflecting on old patterns",
+    "content": "Reading through some older journal entries today made me realize how much I’ve grown. The things I used to worry about, the fears I used to have — they’re still there in some ways, but I face them differently now. This kind of reflection helps me understand where I’ve been and where I’m heading.",
+    "emotion": "reflective",
+    "recommendation": "Regular reflection helps track emotional growth. Keep writing."
+  },
+  {
+    "title": "Lessons from the past",
+    "content": "A conversation today reminded me of a mistake I made a long time ago. But instead of spiraling, I found myself thinking about how that mistake shaped who I am. I still carry it with me, but more as a lesson than a wound. That feels like progress.",
+    "emotion": "reflective",
+    "recommendation": "Look at your past self with compassion, not judgment."
+  },
+  {
+    "title": "Woke up anxious",
+    "content": "My mind was racing from the moment I opened my eyes today. Thoughts, fears, what-ifs — they all came flooding in. It took real effort to ground myself. I went for a short walk, journaled, and breathed deeply. It didn’t erase the anxiety, but it softened the edge.",
+    "emotion": "anxious",
+    "recommendation": "Don’t resist the anxiety — meet it with gentle awareness."
+  },
+  {
+    "title": "Social overwhelm",
+    "content": "I had several interactions today that left me feeling drained. Not because anything went wrong — just too much at once. I found myself needing alone time, but also feeling guilty about that. I’m learning that protecting my energy is a necessity, not a luxury.",
+    "emotion": "anxious",
+    "recommendation": "Give yourself permission to rest without guilt."
+  },
+  {
+    "title": "Excitement and nerves",
+    "content": "I’m getting ready for a presentation tomorrow and I feel a mix of excitement and fear. It’s a big opportunity, and I want to do well. I’ve prepared, I’ve practiced, but there’s still that voice asking, 'What if I mess up?' I’m trying to channel that energy into focus.",
+    "emotion": "excited",
+    "recommendation": "Nerves mean it matters — use them to sharpen your intent."
+  },
+  {
+    "title": "Feeling centered",
+    "content": "Took the entire afternoon off to simply do nothing. No agenda, no guilt. Just sat, read a book, made some tea. It’s rare for me to feel so completely unbothered by productivity, and it was freeing. My body feels lighter, and my mind feels clearer.",
+    "emotion": "peaceful",
+    "recommendation": "Schedule time for intentional stillness each week."
+  },
+  {
+    "title": "Major goal unlocked",
+    "content": "I submitted the final version of my project today. It took months of work, setbacks, revisions, and moments of doubt — but it’s done. More than that, I feel proud. I didn’t give up, and the result reflects the energy I put in. It’s a reminder that I’m capable.",
+    "emotion": "accomplished",
+    "recommendation": "Pause to appreciate the moment before moving on to the next task."
+  },
+  {
+    "title": "Looking inward",
+    "content": "I've been thinking about why I react the way I do in certain situations. It’s uncomfortable to admit, but some of it goes back to how I was treated as a kid. I'm realizing that not every reaction is about what's happening right now — sometimes it's a shadow of something older.",
+    "emotion": "reflective",
+    "recommendation": "Explore your emotional triggers with curiosity, not shame."
+  },
+  {
+    "title": "Tense shoulders, tense thoughts",
+    "content": "Physically, I noticed my shoulders were tight all day. Mentally, I was on edge, anticipating bad news that never came. I know this spiral well. I’m trying to interrupt it earlier next time by recognizing the first signs.",
+    "emotion": "anxious",
+    "recommendation": "Use your body as an early warning system for your mental state."
+  },
+  {
+    "title": "Starting something new",
+    "content": "I decided to sign up for a new online course today. It’s exciting to be learning again, and I already feel like my brain is waking up in a new way. I missed this feeling — like anything is possible if I just stay curious and open.",
+    "emotion": "excited",
+    "recommendation": "Keep pursuing what sparks your interest — it’s fuel for growth."
+  },
+  {
+    "title": "Quiet evening with music",
+    "content": "I put on my favorite playlist and just sat on the floor, listening. No distractions. Just the melodies and my thoughts. It helped me slow down and check in with how I’m really feeling. Music does something to me that nothing else can.",
+    "emotion": "peaceful",
+    "recommendation": "Use music as a form of emotional regulation when you need to slow down."
+  },
+  {
+    "title": "Unexpected win",
+    "content": "I got a positive response to an application I submitted weeks ago. I wasn’t expecting it, and now I’m riding that high. It’s validating, encouraging, and proof that sometimes things just click at the right time. I needed this boost more than I realized.",
+    "emotion": "accomplished",
+    "recommendation": "Capture how you feel right now so you can remember it on harder days."
+  },
+  {
+    "title": "Processing old emotions",
+    "content": "Had a vivid dream last night that brought up an old relationship. It left me unsettled all day. I think there’s still unresolved stuff there, but instead of pushing it away, I wrote about it. It helped. I’m still processing, but at least I’m not ignoring it.",
+    "emotion": "reflective",
+    "recommendation": "Let old feelings surface — they carry insights you may not expect."
+  },
+  {
+    "title": "Pre-meeting jitters",
+    "content": "I have a big meeting coming up tomorrow and I’ve gone through every scenario in my head. I know I’m prepared, but my body still reacts with tension and nerves. Deep breaths help, but so does writing this out. I know it’ll be fine, even if it’s not perfect.",
+    "emotion": "anxious",
+    "recommendation": "Trust in your preparation. You’re more ready than you feel."
+  }
+]

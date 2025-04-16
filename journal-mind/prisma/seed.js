@@ -64,7 +64,7 @@ async function main() {
     });
   }
 
-  console.log(`✅ Seed complete: ${journalEntries.length} journal entries created for ${user.email}.`);
+  console.log(`Seed complete: ${journalEntries.length} journal entries created for ${user.email}.`);
 }
 
 main()
