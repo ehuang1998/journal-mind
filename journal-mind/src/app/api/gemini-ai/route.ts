@@ -36,7 +36,7 @@ export async function POST(request: Request): Promise<Response> {
     // Ensure the response is not too long (55 words max)
     const words = recommendation.split(/\s+/);
     const truncatedRecommendation = words.length > 55 
-      ? words.slice(0, 40).join(' ') + '...'
+      ? words.slice(0, 55).join(' ') + '...'
       : recommendation;
 
     return NextResponse.json({ recommendation: truncatedRecommendation });
