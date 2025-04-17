@@ -5,15 +5,30 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { moodColors } from '@/lib/constants';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/UI/dialog";
 
 type JournalEntry = {
-  id: string;
-  createdAt: string;
+    id: string;
+    createdAt: string;
+    title: string;
+    content: string;
+    emotion: string;
+    recommendation?: string;
 };
 
 export default function CalendarPage() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [highlightedDates, setHighlightedDates] = useState<Set<string>>(new Set());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [dayJournals, setDayJournals] = useState<JournalEntry[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatDateToKey = (date: Date) => date.toISOString().split('T')[0];
 
@@ -34,6 +49,19 @@ export default function CalendarPage() {
       return 'highlighted-date';
     }
     return '';
+  };
+
+  const handleDateClick = (date: Date) => {
+    const key = formatDateToKey(date);
+    const journalsForThatDay = entries.filter(
+      entry => formatDateToKey(new Date(entry.createdAt)) === key
+    );
+  
+    if (journalsForThatDay.length > 0) {
+      setSelectedDate(key);
+      setDayJournals(journalsForThatDay);
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -90,6 +118,7 @@ export default function CalendarPage() {
                     </div>
                 );
                 }}
+            onClickDay={handleDateClick}
             className="w-full text-sm sm:text-base"
         />
         </div>
@@ -124,6 +153,52 @@ export default function CalendarPage() {
           background: #e0f2fe !important; 
         }
       `}</style>
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>Journals for {selectedDate}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            {dayJournals.map(journal => {
+                const moodStyle = moodColors[journal.emotion] || {
+                bg: "bg-gray-100 dark:bg-gray-800",
+                text: "text-gray-800 dark:text-gray-100"
+                };
+
+                return (
+                <div
+                    key={journal.id}
+                    className="bg-card rounded-lg p-4 border border-border/40 shadow-sm"
+                >
+                    <div className="flex justify-between items-start">
+                    <div>
+                        <h2 className="text-lg font-semibold">{journal.title}</h2>
+                        <p className={`text-xs mt-1 px-2 py-0.5 inline-block rounded-full ${moodStyle.bg} ${moodStyle.text}`}>
+                        {journal.emotion}
+                        </p>
+                    </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">{journal.content}</p>
+                    {journal.recommendation && (
+                    <div className="mt-2 p-3 bg-muted rounded-md">
+                        <h3 className="text-xs font-medium">AI Insight:</h3>
+                        <p className="text-sm">{journal.recommendation}</p>
+                    </div>
+                    )}
+                </div>
+                );
+            })}
+            </div>
+
+            <DialogFooter className="pt-4">
+            <button className="text-sm underline" onClick={() => setIsModalOpen(false)}>
+                Close
+            </button>
+            </DialogFooter>
+        </DialogContent>
+        </Dialog>
     </div>
   );
 }
