@@ -1,3 +1,9 @@
+require('dotenv').config();
+
+// Log the DATABASE_URL for debugging
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
+// Create the database connection with the correct database name
 const { PrismaClient } = require('@prisma/client');
 const { randomUUID } = require('crypto');
 const fs = require('fs');
