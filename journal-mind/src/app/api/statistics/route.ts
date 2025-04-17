@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
+import prisma from "@/lib/prisma";
 import jwt from 'jsonwebtoken';
+import { TypedPrismaClient } from '@/lib/prisma-types';
 
-const prisma = new PrismaClient();
+// Near the top, before any usage of typedPrisma
+const typedPrisma = prisma as any;
 
 // Get user statistics
 export async function GET(request: Request) {
@@ -62,10 +65,22 @@ export async function GET(request: Request) {
       { subject: 'Anxious', value: (emotionCounts.anxious || 0) * 10, fullMark: 100 },
     ];
     
-    // Add these calculations to your statistics endpoint
-    const weeklyGoal = 7; // This could be customizable per user in the future
-    const monthlyWordGoal = 20000; // Also potentially customizable
-    const streakGoal = 30; // Days
+    // Fetch user's custom goals if they exist
+    const userGoals = await typedPrisma.goal.findMany({
+      where: { userId }
+    });
+
+    // Default goals
+    let weeklyGoal = 7;
+    let monthlyWordGoal = 20000;
+    let streakGoal = 30;
+
+    // Override with custom goals if they exist
+    userGoals.forEach((goal: {type: string, target: number}) => {
+      if (goal.type === 'weekly') weeklyGoal = goal.target;
+      if (goal.type === 'monthlyWords') monthlyWordGoal = goal.target;
+      if (goal.type === 'streak') streakGoal = goal.target;
+    });
 
     // Calculate weekly entries progress
     const weeklyEntriesProgress = Math.min(100, Math.round((entriesThisWeek / weeklyGoal) * 100));

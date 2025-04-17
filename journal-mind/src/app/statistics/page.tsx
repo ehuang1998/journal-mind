@@ -8,6 +8,7 @@ import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Plus, TrendingUp, Clock, CalendarDays, LineChart, Lock, Trophy, Lightbulb, Activity } from "lucide-react";
 import MoodRadarChart from "@/components/Dashboard/RadarChart";
+import SetGoalModal from "@/components/Statistics/SetGoalModal";
 
 // Define interfaces
 interface Journal {
@@ -77,6 +78,8 @@ export default function StatisticsPage() {
   const [statistics, setStatistics] = useState<Statistics | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  // Add state for the modal
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
   // Fetch user and journals
   useEffect(() => {
@@ -248,6 +251,32 @@ export default function StatisticsPage() {
     { subject: 'Peaceful', value: 85, fullMark: 100 },
   ];
 
+  // Add a function to save the goal
+  const saveGoal = async (goalType: string, target: number) => {
+    try {
+      const response = await fetch('/api/goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ goalType, target }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save goal');
+      }
+      
+      // After saving, refresh the statistics
+      const statsResponse = await fetch('/api/statistics');
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        setStatistics(statsData);
+      }
+    } catch (error) {
+      console.error('Error saving goal:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -291,7 +320,7 @@ export default function StatisticsPage() {
                     <Progress value={statistics?.goals.streak.progress || 0} />
                   </div>
                 </div>
-                <Button className="mt-6">
+                <Button className="mt-6" onClick={() => setIsGoalModalOpen(true)}>
                   <Plus size={16} className="mr-2" />
                   Set New Goal
                 </Button>
@@ -373,6 +402,13 @@ export default function StatisticsPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Add the modal to your JSX (at the bottom of the component) */}
+      <SetGoalModal 
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
+        onSave={saveGoal}
+      />
     </div>
   );
 }

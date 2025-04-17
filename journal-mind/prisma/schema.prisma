@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  name          String?
-  image         String?
-  createdAt     DateTime  @default(now())
-  emailVerified Boolean   @default(false)
-  updatedAt     DateTime  @default(now())
-  sessions      Session[]
-  accounts      Account[]
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String
+  name            String?
+  image           String?
+  createdAt       DateTime  @default(now())
+  emailVerified   Boolean   @default(false)
+  updatedAt       DateTime  @default(now())
+  goals           Goal[]
   writtenJournals Journal[] @relation("JournalToUser")
+  accounts        Account[]
+  sessions        Session[]
   sharedJournals  Journal[] @relation("journalSharedWith")
 
   @@map("user")
@@ -27,7 +28,7 @@ model User {
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -35,7 +36,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@map("session")
 }
 
@@ -44,7 +44,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -54,6 +53,7 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
@@ -70,14 +70,28 @@ model Verification {
 }
 
 model Journal {
-  id            String   @id @default(uuid())
-  title         String
-  content       String   @db.Text
-  emotion       String
-  recommendation String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  authorId      String
-  author        User     @relation("JournalToUser", fields: [authorId], references: [id])
-  sharedWith    User[]   @relation("journalSharedWith")
+  id             String   @id @default(uuid())
+  title          String
+  emotion        String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  authorId       String
+  content        String
+  recommendation String?
+  author         User     @relation("JournalToUser", fields: [authorId], references: [id])
+  sharedWith     User[]   @relation("journalSharedWith")
+}
+
+/// @model
+model Goal {
+  id        String   @id @default(uuid())
+  type      String
+  target    Int
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type])
+  @@map("goal")
 }
