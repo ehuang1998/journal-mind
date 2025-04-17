@@ -6,6 +6,8 @@ import { Input } from "@/components/UI/input";
 import { Search, Plus } from "lucide-react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
+import { moodColors } from '@/lib/constants';
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -37,30 +39,6 @@ export default function JournalsPage() {
   const [journalToEdit, setJournalToEdit] = useState<Journal | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const router = useRouter();
-
-  // Map moods to color schemes
-  const moodColors: Record<string, { bg: string, text: string }> = {
-    excited: { 
-      bg: "bg-amber-100 dark:bg-amber-900", 
-      text: "text-amber-800 dark:text-amber-100" 
-    },
-    peaceful: { 
-      bg: "bg-blue-100 dark:bg-blue-900", 
-      text: "text-blue-800 dark:text-blue-100" 
-    },
-    accomplished: { 
-      bg: "bg-green-100 dark:bg-green-900", 
-      text: "text-green-800 dark:text-green-100" 
-    },
-    reflective: { 
-      bg: "bg-purple-100 dark:bg-purple-900", 
-      text: "text-purple-800 dark:text-purple-100" 
-    },
-    anxious: { 
-      bg: "bg-red-100 dark:bg-red-900", 
-      text: "text-red-800 dark:text-red-100" 
-    }
-  };
 
   // Fetch journals
   useEffect(() => {
@@ -164,10 +142,15 @@ export default function JournalsPage() {
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">My Journals</h1>
-          <Button onClick={() => setIsNewEntryModalOpen(true)}>
-            <Plus size={16} className="mr-1.5" />
-            New Entry
-          </Button>
+          <div className="flex gap-2">
+            <Link href="/calendar">
+              <Button variant="outline">📅 View Calendar</Button>
+            </Link>
+            <Button onClick={() => setIsNewEntryModalOpen(true)}>
+              <Plus size={16} className="mr-1.5" />
+              New Entry
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar */}
