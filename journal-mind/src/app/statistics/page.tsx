@@ -60,12 +60,14 @@ interface Statistics {
   averageWords: number;
   emotionCounts: Record<string, number>;
   moodData: { subject: string, value: number, fullMark: number }[];
-  achievements: { name: string, unlocked: boolean }[];
-  writingGoals: {
-    weeklyEntries: { current: number, target: number, percentage: number };
-    monthlyWordCount: { current: number, target: number, percentage: number };
-    streakGoal: { current: number, target: number, percentage: number };
+  goals: {
+    weekly: { current: number, target: number, progress: number };
+    monthlyWords: { current: number, target: number, progress: number };
+    streak: { current: number, target: number, progress: number };
   };
+  achievements: { id: string, title: string, description: string, achieved: boolean }[];
+  patternInsights: { title: string, description: string, icon: string }[];
+  recommendations: { title: string, description: string, icon: string }[];
 }
 
 export default function StatisticsPage() {
@@ -263,35 +265,52 @@ export default function StatisticsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Writing Goals */}
               <div>
-                <h3 className="text-xl font-semibold mb-4">Writing Goals</h3>
+                <h3 className="text-xl font-bold text-indigo-900 mb-4">Writing Goals</h3>
                 <div className="space-y-6">
-                  {writingGoals.map((goal) => (
-                    <div key={goal.name}>
-                      <div className="flex justify-between items-center mb-2">
-                        <span>{goal.name} ({goal.current}/{goal.target})</span>
-                        <span>{goal.percentage}%</span>
-                      </div>
-                      <Progress value={goal.percentage} className="h-2" />
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <p>Weekly entries ({statistics?.goals.weekly.current}/{statistics?.goals.weekly.target})</p>
+                      <span>{statistics?.goals.weekly.progress}%</span>
                     </div>
-                  ))}
-                  <Button className="mt-4" variant="outline">
-                    <Plus size={16} className="mr-2" />
-                    Set New Goal
-                  </Button>
+                    <Progress value={statistics?.goals.weekly.progress || 0} />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <p>Monthly word count ({statistics?.goals.monthlyWords.current}/{statistics?.goals.monthlyWords.target})</p>
+                      <span>{statistics?.goals.monthlyWords.progress}%</span>
+                    </div>
+                    <Progress value={statistics?.goals.monthlyWords.progress || 0} />
+                  </div>
+                  
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <p>Streak goal ({statistics?.goals.streak.current}/{statistics?.goals.streak.target})</p>
+                      <span>{statistics?.goals.streak.progress}%</span>
+                    </div>
+                    <Progress value={statistics?.goals.streak.progress || 0} />
+                  </div>
                 </div>
+                <Button className="mt-6">
+                  <Plus size={16} className="mr-2" />
+                  Set New Goal
+                </Button>
               </div>
 
               {/* Achievements */}
               <div>
-                <h3 className="text-xl font-semibold mb-4">Achievements</h3>
+                <h3 className="text-xl font-bold text-indigo-900 mb-4">Achievements</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {achievements.map((achievement) => (
-                    <Card key={achievement.name} className={`p-4 flex flex-col items-center justify-center ${achievement.unlocked ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-muted'}`}>
-                      <div className="mb-2">
-                        {achievement.icon}
-                      </div>
-                      <p className="text-center">{achievement.name}</p>
-                    </Card>
+                  {statistics?.achievements.map(achievement => (
+                    <div 
+                      key={achievement.id} 
+                      className={`bg-blue-50 p-5 rounded-lg flex flex-col items-center justify-center text-center ${
+                        !achievement.achieved ? "opacity-50" : ""
+                      }`}
+                    >
+                      <Trophy className={`h-8 w-8 mb-3 ${achievement.achieved ? "text-blue-600" : "text-gray-400"}`} />
+                      <p className="font-medium">{achievement.title}</p>
+                    </div>
                   ))}
                 </div>
               </div>
