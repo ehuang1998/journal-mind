@@ -114,7 +114,7 @@ export default function CalendarPage() {
         <div className="mb-8">
             <button
                 onClick={() => router.push('/journals')}
-                className="flex items-center text-sm font-medium text-primary hover:underline">
+                className="flex items-center text-sm font-medium text-primary hover:underline mb-4">
                 <ArrowLeft className="w-5 h-5 mr-1" />
                 Back
             </button>
