@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/UI/button";
 import { Input } from "@/components/UI/input";
-import { Search, Plus } from "lucide-react";
+import { CalendarDays, Search, Plus } from "lucide-react";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import { moodColors } from '@/lib/constants';
@@ -144,7 +144,10 @@ export default function JournalsPage() {
           <h1 className="text-3xl font-bold">My Journals</h1>
           <div className="flex gap-2">
             <Link href="/calendar">
-              <Button variant="outline">📅 View Calendar</Button>
+              <Button variant="outline">
+                <CalendarDays size={16} className="mr-1.5" />
+                View Calendar
+              </Button>
             </Link>
             <Button onClick={() => setIsNewEntryModalOpen(true)}>
               <Plus size={16} className="mr-1.5" />

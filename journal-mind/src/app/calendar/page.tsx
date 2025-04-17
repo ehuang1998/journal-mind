@@ -192,6 +192,11 @@ export default function CalendarPage() {
         .react-calendar__tile:enabled:hover {
           background: #e0f2fe !important; 
         }
+
+        .react-calendar__navigation__label {
+          font-size: 1.25rem; /* text-lg */
+          font-weight: 600;   /* semi-bold */
+        }
       `}</style>
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
