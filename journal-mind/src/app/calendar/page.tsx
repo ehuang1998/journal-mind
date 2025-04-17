@@ -7,6 +7,8 @@ import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { moodColors } from '@/lib/constants';
 import JournalEntryModal from '@/components/Dashboard/JournalEntryModal';
 import { Button } from '@/components/UI/button';
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +37,7 @@ export default function CalendarPage() {
   const [journalToDelete, setJournalToDelete] = useState<JournalEntry | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const router = useRouter();
 
   const formatDateToKey = (date: Date) => date.toISOString().split('T')[0];
 
@@ -108,7 +111,15 @@ export default function CalendarPage() {
     <div className="min-h-screen bg-background">
       <DashboardHeader />
       <div className="container mx-auto px-6 py-10">
-        <h1 className="text-3xl font-bold mb-8">Journal Calendar</h1>
+      <div className="flex items-center gap-4 mb-8">
+        <button
+            onClick={() => router.push('/journals')}
+            className="flex items-center text-sm font-medium text-primary hover:underline">
+            <ArrowLeft className="w-5 h-5 mr-1" />
+            Back
+        </button>
+        <h1 className="text-3xl font-bold">Journal Calendar</h1>
+        </div>
         <div className="w-full mx-auto bg-white dark:bg-muted rounded-xl shadow-lg p-6">
         <Calendar
             tileClassName={tileClassName}
