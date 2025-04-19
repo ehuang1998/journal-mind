@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import MoodRadarChart from "@/components/Dashboard/RadarChart";
 import JournalCard from "@/components/Journal/JournalCard";
@@ -9,6 +9,7 @@ import { Button } from "@/components/UI/button";
 import { Progress } from "@/components/UI/progress";
 import { Badge } from "@/components/UI/badge";
 import { Plus } from "lucide-react";
+import { emotionTips, journalingTips } from "@/lib/constants";
 import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 
@@ -35,6 +36,10 @@ export default function Dashboard() {
   const [user, setUser] = useState<{ name: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [journals, setJournals] = useState<Journal[]>([]);
+  const [allJournals, setAllJournals] = useState<Journal[]>([]);
+
+  const showEmotionNext = useRef(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -109,6 +114,7 @@ export default function Dashboard() {
         }
         const data = await response.json();
         setJournals(data.slice(0,3 )); // Only take the last 3 journals
+        setAllJournals(data);          // full list for notifications
       } catch (error) {
         console.error('Error fetching journals:', error);
       }
@@ -117,11 +123,69 @@ export default function Dashboard() {
     fetchJournals();
   }, [router]);
 
+  const userHasWrittenToday = () => {
+    const today = new Date().toDateString();
+    return allJournals.some(journal => new Date(journal.createdAt).toDateString() === today);
+  };
+
+  const getDominantEmotion = (): string | null => {
+    const recent = allJournals.slice(0, 5); // last 5 entries
+    const emotionCount: Record<string, number> = {};
+  
+    for (const journal of recent) {
+      emotionCount[journal.emotion] = (emotionCount[journal.emotion] || 0) + 1;
+    }
+  
+    const sorted = Object.entries(emotionCount).sort((a, b) => b[1] - a[1]);
+    return sorted.length > 0 ? sorted[0][0] : null;
+  };
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+  
+      const interval = setInterval(() => {
+        if (Notification.permission === "granted") {
+          if (!userHasWrittenToday()) {
+            new Notification("Time to journal!", {
+              body: `Hey ${user?.name || "there"}, take 2 minutes to reflect on your day.`,
+            });
+          } else {
+            if (showEmotionNext.current) {
+              const emotion = getDominantEmotion();
+              if (emotion && emotionTips[emotion]) {
+                const tips = emotionTips[emotion];
+                const tip = tips[Math.floor(Math.random() * tips.length)];
+                new Notification(`Tip for feeling ${emotion}`, { body: tip });
+              } else {
+                const tip = journalingTips[Math.floor(Math.random() * journalingTips.length)];
+                new Notification("Journaling Tip", { body: tip });
+              }
+            } else {
+              const tip = journalingTips[Math.floor(Math.random() * journalingTips.length)];
+              new Notification("Journaling Tip", { body: tip });
+            }
+      
+            // Alternate tip type next time
+            showEmotionNext.current = !showEmotionNext.current;
+          }
+        }
+      }, 120000);
+  
+      return () => clearInterval(interval);
+    }
+  }, [allJournals, user]);
+
   // Refresh journals after creating a new one
   const handleJournalCreated = () => {
     fetch('/api/journals')
       .then(res => res.json())
-      .then(data => setJournals(data))
+      .then((data) => {
+        setJournals(data.slice(0, 3));  // for display
+        setAllJournals(data);           // for notification logic
+      })
       .catch(err => console.error('Error refreshing journals:', err));
   };
 
