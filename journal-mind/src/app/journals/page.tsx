@@ -8,6 +8,7 @@ import JournalEntryModal from "@/components/Dashboard/JournalEntryModal";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import { moodColors } from '@/lib/constants';
 import Link from "next/link";
+import jsPDF from 'jspdf';
 import {
   Dialog,
   DialogContent,
@@ -126,6 +127,24 @@ export default function JournalsPage() {
     }
   };
 
+  const handleDownloadPDF = async (journal: Journal) => {
+    const pdf = new jsPDF();
+    const content = `
+      Title: ${journal.title}
+      Date: ${new Date(journal.createdAt).toLocaleString()}
+      Mood: ${journal.emotion}
+      
+      Content:
+      ${journal.content}
+      
+      ${journal.recommendation ? `\nRecommendation:\n${journal.recommendation}` : ''}
+    `;
+
+    pdf.setFontSize(12);
+    pdf.text(content, 10, 10, { maxWidth: 180 });
+    pdf.save(`${journal.title.replace(/\s+/g, "_")}.pdf`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -192,6 +211,13 @@ export default function JournalsPage() {
                       <p className="text-sm text-muted-foreground">{formatDate(journal.createdAt)}</p>
                     </div>
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadPDF(journal)}
+                      >
+                        Download
+                      </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
